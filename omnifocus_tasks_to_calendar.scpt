@@ -4,14 +4,13 @@
 
 
 -- ** HISTORY ** --
+-- -- Rosemary Orchard
+-- -- -- Modified from a script by unlocked2412
+-- -- -- If an estimated time is not set then the task defaults to 30 minutes in length
+-- -- willjasen
+-- -- -- changed "set start_date to start_date - (task_estimate * minutes)" to "set start_date to end_date - (task_estimate * minutes)"
+-- -- -- changed so that only events from today forward are added to the calendar (decreases runtime)
 
--- Rosemary Orchard
--- Modified from a script by unlocked2412
--- This creates calendar events for tasks which have a due date, if an estimated time is not set then the task defaults to 30 minutes in length
-
--- willjasen
--- changed "set start_date to start_date - (task_estimate * minutes)" to "set start_date to end_date - (task_estimate * minutes)"
--- changed so that only events from today forward are added to the calendar (decreases runtime)
 
 --  SCRIPT  --
 -- ******** --
