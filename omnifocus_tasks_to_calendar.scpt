@@ -4,6 +4,7 @@ property default_duration : 30 --minutes
 -- Rosemary Orchard
 -- Modified from a script by unlocked2412
 -- This creates calendar events for tasks which have a due date, if an estimated time is not set then the task defaults to 30 minutes in length
+-- https://rosemaryorchard.com/blog/using-keyboard-maestro-to-create-an-always-up-to-date-task-calendar-from-my-omnifocus/
 
 -- willjasen
 -- changed "set start_date to start_date - (task_estimate * minutes)" to "set start_date to end_date - (task_estimate * minutes)"
