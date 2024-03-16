@@ -1,5 +1,9 @@
-property calendar_name : "OmniFocus" -- This is the name of your calendar
-property default_duration : 30 --minutes
+-- ** OVERVIEW ** --
+-- This code creates macOS Calendar events from OmniFocus tasks that are due today or in the future
+-- In regards to runtime, all events on the specified calendar are deleted and then recreated
+
+
+-- ** HISTORY ** --
 
 -- Rosemary Orchard
 -- Modified from a script by unlocked2412
@@ -8,6 +12,12 @@ property default_duration : 30 --minutes
 -- willjasen
 -- changed "set start_date to start_date - (task_estimate * minutes)" to "set start_date to end_date - (task_estimate * minutes)"
 -- changed so that only events from today forward are added to the calendar (decreases runtime)
+
+--  SCRIPT  --
+-- ******** --
+
+property calendar_name : "OmniFocus" -- This is the name of your calendar
+property default_duration : 30 --minutes
 
 tell application "Calendar"
 	set calendar_element to calendar calendar_name
