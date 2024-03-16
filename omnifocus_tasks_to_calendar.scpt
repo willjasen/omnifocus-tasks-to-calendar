@@ -25,18 +25,18 @@ tell application "Calendar"
 		repeat with current_event in theEvents
 			delete current_event
 		end repeat
-		
+
 		set theStartDate to current date
 		set hours of theStartDate to 0
 		set minutes of theStartDate to 0
 		set seconds of theStartDate to 0
 
-		set numOfDaysToInclude to 4
-		set theEndDate to current date + numOfDaysToInclude
-		set hours of theEndDate to 0
-		set minutes of theEndDate to 0
-		set seconds of theEndDate to 0
-		
+		-- set numOfDaysToInclude to 4
+		-- set theEndDate to current date + numOfDaysToInclude
+		-- set hours of theEndDate to 0
+		-- set minutes of theEndDate to 0
+		-- set seconds of theEndDate to 0
+
 	end tell
 end tell
 
@@ -48,10 +48,10 @@ tell application "OmniFocus"
 			-- GET OMNIFOCUS TASKS
 			set the_task to contents of item_ref
 			set task_due to due date of the_task
-			
+
 			-- IF THE TASK IS DUE TODAY AND IS WITHIN THE INCLUDED RANGE, THEN PROCESS IT; SKIP THE PAST
-			if task_due is (greater than or equal to theStartDate) and (less than or equal to theEndDate) then
-				
+			if task_due is greater than or equal to theStartDate then
+
 				set task_name to name of the_task
 				set task_note to note of the_task
 				set task_estimate to estimated minutes of the_task
