@@ -23,6 +23,8 @@ tell application "Calendar"
 	tell calendar calendar_name
 		set theEvents to every event
 		repeat with current_event in theEvents
+			-- set eventDeletions to "Deleting - " & {summary:current_event}
+			-- copy eventDeletions to stdout
 			delete current_event
 		end repeat
 
@@ -32,10 +34,10 @@ tell application "Calendar"
 		set seconds of theStartDate to 0
 
 		-- set numOfDaysToInclude to 4
-		-- set theEndDate to current date + numOfDaysToInclude
-		-- set hours of theEndDate to 0
-		-- set minutes of theEndDate to 0
-		-- set seconds of theEndDate to 0
+		set theEndDate to current date
+		set hours of theEndDate to 23
+		set minutes of theEndDate to 59
+		set seconds of theEndDate to 59
 
 	end tell
 end tell
@@ -51,6 +53,7 @@ tell application "OmniFocus"
 
 			-- IF THE TASK IS DUE TODAY AND IS WITHIN THE INCLUDED RANGE, THEN PROCESS IT; SKIP THE PAST
 			if task_due is greater than or equal to theStartDate then
+				if task_due is less than or equal to theEndDate then
 
 				set task_name to name of the_task
 				set task_note to note of the_task
@@ -60,6 +63,7 @@ tell application "OmniFocus"
 					set task_estimate to default_duration
 				end if
 				-- BUILD CALENDAR DATE
+				-- copy "Creating event: " & task_name to stdout
 				set end_date to task_due
 				set start_date to end_date - (task_estimate * minutes)
 				-- CREATE CALENDAR EVENT
@@ -71,6 +75,7 @@ tell application "OmniFocus"
 						end if
 					end tell
 				end tell
+				end if
 			end if
 		end repeat
 	end tell
