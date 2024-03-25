@@ -15,8 +15,10 @@
 --  SCRIPT  --
 -- ******** --
 
-property calendar_name : "OmniFocus" -- This is the name of your calendar
-property calendar_name_2 : "OmniFocus - 2" -- This is the name of your calendar
+property calendar_name : "OmniFocus"
+property calendar_name_2 : "OmniFocus - 👦🏻 Tyler"
+property calendar_name_3 : "OmniFocus - 👩🏻 Mom"
+property calendar_name_4 : "OmniFocus - 👨🏼 Nathaniel"
 property default_duration : 30 --minutes
 
 set theStartDate to current date
@@ -44,6 +46,26 @@ tell application "Calendar"
 
 	set calendar_element_2 to calendar calendar_name_2
 	tell calendar calendar_name_2
+		set theEvents to every event
+		repeat with current_event in theEvents
+			-- set eventDeletions to "Deleting - " & {summary:current_event}
+			-- copy eventDeletions to stdout
+			delete current_event
+		end repeat
+	end tell
+
+	set calendar_element_3 to calendar calendar_name_3
+	tell calendar calendar_name_3
+		set theEvents to every event
+		repeat with current_event in theEvents
+			-- set eventDeletions to "Deleting - " & {summary:current_event}
+			-- copy eventDeletions to stdout
+			delete current_event
+		end repeat
+	end tell
+
+	set calendar_element_4 to calendar calendar_name_4
+	tell calendar calendar_name_4
 		set theEvents to every event
 		repeat with current_event in theEvents
 			-- set eventDeletions to "Deleting - " & {summary:current_event}
@@ -102,5 +124,123 @@ tell application "OmniFocus"
 				end if
 			end if
 		end repeat
+
+		set task_elements to flattened tasks whose ¬
+			(completed is false) and (due date ≠ missing value) and (name of primary tag contains "👦🏻 Tyler")
+		repeat with item_ref in task_elements
+
+				-- GET OMNIFOCUS TASKS
+				set the_task to contents of item_ref
+				set task_due to due date of the_task
+
+				-- IF THE TASK IS DUE TODAY AND IS WITHIN THE INCLUDED RANGE, THEN PROCESS IT; SKIP THE PAST
+				if task_due is greater than or equal to theStartDate then
+					if task_due is less than or equal to theEndDate then
+
+					set task_name to name of the_task
+					set task_note to note of the_task
+					set task_estimate to estimated minutes of the_task
+					set task_url to "omnifocus:///task/" & id of the_task
+					set task_tag to primary tag of the_task
+					set task_tag_name to name of task_tag
+					set newNotes to "These are my event notes."
+					if task_estimate is missing value then
+						set task_estimate to default_duration
+					end if
+
+					-- BUILD CALENDAR DATE
+					-- copy "Creating event: " & task_name to stdout
+					set end_date to task_due
+					set start_date to end_date - (task_estimate * minutes)
+					-- CREATE CALENDAR EVENT
+					tell application "Calendar"
+							tell calendar_element_2
+								if not (exists (first event whose (start date = start_date) and (summary = task_name))) then
+									make new event with properties {summary:task_name, start date:start_date, end date:end_date, url:task_url} at calendar_element_2
+								end if
+							end tell
+						end tell
+					end if
+				end if
+		end repeat
+
+		set task_elements to flattened tasks whose ¬
+			(completed is false) and (due date ≠ missing value) and (name of primary tag contains "👩🏻 Mom")
+		repeat with item_ref in task_elements
+
+				-- GET OMNIFOCUS TASKS
+				set the_task to contents of item_ref
+				set task_due to due date of the_task
+
+				-- IF THE TASK IS DUE TODAY AND IS WITHIN THE INCLUDED RANGE, THEN PROCESS IT; SKIP THE PAST
+				if task_due is greater than or equal to theStartDate then
+					if task_due is less than or equal to theEndDate then
+
+					set task_name to name of the_task
+					set task_note to note of the_task
+					set task_estimate to estimated minutes of the_task
+					set task_url to "omnifocus:///task/" & id of the_task
+					set task_tag to primary tag of the_task
+					set task_tag_name to name of task_tag
+					set newNotes to "These are my event notes."
+					if task_estimate is missing value then
+						set task_estimate to default_duration
+					end if
+
+					-- BUILD CALENDAR DATE
+					-- copy "Creating event: " & task_name to stdout
+					set end_date to task_due
+					set start_date to end_date - (task_estimate * minutes)
+					-- CREATE CALENDAR EVENT
+					tell application "Calendar"
+							tell calendar_element_3
+								if not (exists (first event whose (start date = start_date) and (summary = task_name))) then
+									make new event with properties {summary:task_name, start date:start_date, end date:end_date, url:task_url} at calendar_element_3
+								end if
+							end tell
+						end tell
+					end if
+				end if
+		end repeat
+
+		set task_elements to flattened tasks whose ¬
+			(completed is false) and (due date ≠ missing value) and (name of primary tag contains "👨🏼 Nathaniel")
+		repeat with item_ref in task_elements
+
+				-- GET OMNIFOCUS TASKS
+				set the_task to contents of item_ref
+				set task_due to due date of the_task
+
+				-- IF THE TASK IS DUE TODAY AND IS WITHIN THE INCLUDED RANGE, THEN PROCESS IT; SKIP THE PAST
+				if task_due is greater than or equal to theStartDate then
+					if task_due is less than or equal to theEndDate then
+
+					set task_name to name of the_task
+					set task_note to note of the_task
+					set task_estimate to estimated minutes of the_task
+					set task_url to "omnifocus:///task/" & id of the_task
+					set task_tag to primary tag of the_task
+					set task_tag_name to name of task_tag
+					set newNotes to "These are my event notes."
+					if task_estimate is missing value then
+						set task_estimate to default_duration
+					end if
+
+					-- BUILD CALENDAR DATE
+					-- copy "Creating event: " & task_name to stdout
+					set end_date to task_due
+					set start_date to end_date - (task_estimate * minutes)
+					-- CREATE CALENDAR EVENT
+					tell application "Calendar"
+							tell calendar_element_4
+								if not (exists (first event whose (start date = start_date) and (summary = task_name))) then
+									make new event with properties {summary:task_name, start date:start_date, end date:end_date, url:task_url} at calendar_element_4
+								end if
+							end tell
+						end tell
+					end if
+				end if
+		end repeat
+
 	end tell
 end tell
