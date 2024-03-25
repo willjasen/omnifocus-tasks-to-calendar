@@ -16,10 +16,23 @@
 -- ******** --
 
 property calendar_name : "OmniFocus" -- This is the name of your calendar
+property calendar_name_2 : "OmniFocus - 2" -- This is the name of your calendar
 property default_duration : 30 --minutes
 
+set theStartDate to current date
+set hours of theStartDate to 0
+set minutes of theStartDate to 0
+set seconds of theStartDate to 0
+
+-- set numOfDaysToInclude to 4
+set theEndDate to current date
+set hours of theEndDate to 23
+set minutes of theEndDate to 59
+set seconds of theEndDate to 59
+
+-- DELETE THE EXISTING EVENTS
 tell application "Calendar"
-	set calendar_element to calendar calendar_name
+  set calendar_element to calendar calendar_name
 	tell calendar calendar_name
 		set theEvents to every event
 		repeat with current_event in theEvents
@@ -27,18 +40,16 @@ tell application "Calendar"
 			-- copy eventDeletions to stdout
 			delete current_event
 		end repeat
+	end tell
 
-		set theStartDate to current date
-		set hours of theStartDate to 0
-		set minutes of theStartDate to 0
-		set seconds of theStartDate to 0
-
-		-- set numOfDaysToInclude to 4
-		set theEndDate to current date
-		set hours of theEndDate to 23
-		set minutes of theEndDate to 59
-		set seconds of theEndDate to 59
-
+	set calendar_element_2 to calendar calendar_name_2
+	tell calendar calendar_name_2
+		set theEvents to every event
+		repeat with current_event in theEvents
+			-- set eventDeletions to "Deleting - " & {summary:current_event}
+			-- copy eventDeletions to stdout
+			delete current_event
+		end repeat
 	end tell
 end tell
 
@@ -47,6 +58,7 @@ tell application "OmniFocus"
 		set task_elements to flattened tasks whose ¬
 			(completed is false) and (due date ≠ missing value)
 		repeat with item_ref in task_elements
+
 			-- GET OMNIFOCUS TASKS
 			set the_task to contents of item_ref
 			set task_due to due date of the_task
@@ -66,22 +78,38 @@ tell application "OmniFocus"
 				if task_estimate is missing value then
 					set task_estimate to default_duration
 				end if
+
 				-- BUILD CALENDAR DATE
 				-- copy "Creating event: " & task_name to stdout
 				set end_date to task_due
 				set start_date to end_date - (task_estimate * minutes)
 				-- CREATE CALENDAR EVENT
 				tell application "Calendar"
-					tell calendar_element
-						if not (exists (first event whose (start date = start_date) and (summary = task_name))) then
+					-- tell calendar calendar_name
+						-- set calendar_element to calendar calendar_name
+						tell calendar_element
+							if not (exists (first event whose (start date = start_date) and (summary = task_name))) then
+						  -- set newNotes to text returned of (display dialog "Enter new notes:" default answer "")
+							-- adding notes causes an error, works otherwise
+							-- make new event with properties {summary:task_name, start date:start_date, end date:end_date, url:task_url, notes:newNotes} at calendar_element
+								make new event with properties {summary:task_name, start date:start_date, end date:end_date, url:task_url} at calendar_element
+							end if
+						end tell
+
+
+
+					--tell calendar calendar_name_2
+					--set calendar_element_2 to calendar calendar_name_2
+					--tell calendar_element_2
+					--	if not (exists (first event whose (start date = start_date) and (summary = task_name))) then
 						  -- set newNotes to text returned of (display dialog "Enter new notes:" default answer "")
 
 							-- adding notes causes an error, works otherwise
-							-- make new event with properties {summary:task_name, start date:start_date, end date:end_date, url:task_url, notes:newNotes} at calendar_element
-							make new event with properties {summary:task_name, start date:start_date, end date:end_date, url:task_url} at calendar_element
-						end if
+							-- make new event with properties {summary:task_name, start date:start_date, end date:end_date, url:task_url, notes:newNotes} at calendar_element_2
+					--		make new event with properties {summary:task_name, start date:start_date, end date:end_date, url:task_url} at calendar_element
+					--	end if
+					--end tell
 					end tell
-				end tell
 				end if
 			end if
 		end repeat
