@@ -51,7 +51,7 @@ tell application "OmniFocus"
 			set the_task to contents of item_ref
 			set task_due to due date of the_task
 
-			-- IF THE TASK IS DUE TODAY, THEN PROCESS IT; SKIP THE PAST AND FUTURE
+			-- IF THE TASK IS DUE TODAY AND IS WITHIN THE INCLUDED RANGE, THEN PROCESS IT; SKIP THE PAST
 			if task_due is greater than or equal to theStartDate then
 				if task_due is less than or equal to theEndDate then
 
@@ -59,6 +59,10 @@ tell application "OmniFocus"
 				set task_note to note of the_task
 				set task_estimate to estimated minutes of the_task
 				set task_url to "omnifocus:///task/" & id of the_task
+				set task_tag to primary tag of the_task
+				-- set task_tag_name to name of task_tag
+				set task_tag_name to "testing!!"
+				set newNotes to "These are my event notes."
 				if task_estimate is missing value then
 					set task_estimate to default_duration
 				end if
@@ -70,8 +74,11 @@ tell application "OmniFocus"
 				tell application "Calendar"
 					tell calendar_element
 						if not (exists (first event whose (start date = start_date) and (summary = task_name))) then
-							make new event with properties ¬
-								{summary:task_name, start date:start_date, end date:end_date, url:task_url} at calendar_element
+						  -- set newNotes to text returned of (display dialog "Enter new notes:" default answer "")
+
+							-- adding notes causes an error, works otherwise
+							-- make new event with properties {summary:task_name, start date:start_date, end date:end_date, url:task_url, notes:newNotes} at calendar_element
+							make new event with properties {summary:task_name, start date:start_date, end date:end_date, url:task_url} at calendar_element
 						end if
 					end tell
 				end tell
