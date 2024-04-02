@@ -15,19 +15,20 @@
 --  SCRIPT  --
 -- ******** --
 
+set numOfDaysToInclude to 7 --includes today
+
 property calendar_name : "OmniFocus"
 property calendar_name_2 : "OmniFocus - 👦🏻 Tyler"
 property calendar_name_3 : "OmniFocus - 👩🏻 Mom"
 property calendar_name_4 : "OmniFocus - 👨🏼 Nathaniel"
-property default_duration : 30 --minutes
+property default_duration : 30 --in minutes
 
 set theStartDate to current date
 set hours of theStartDate to 0
 set minutes of theStartDate to 0
 set seconds of theStartDate to 0
 
--- set numOfDaysToInclude to 4
-set theEndDate to current date
+set theEndDate to current date + (days * (numOfDaysToInclude - 1))
 set hours of theEndDate to 23
 set minutes of theEndDate to 59
 set seconds of theEndDate to 59
