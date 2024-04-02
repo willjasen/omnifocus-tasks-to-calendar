@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Disabled</key>
+	<false/>
+	<key>Label</key>
+	<string>omnifocus_tasks_to_calendar</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>osascript</string>
+		<string>/Users/willjasen/.scripts/omnifocus-tasks-to-calendar/omnifocus_tasks_to_calendar.scpt</string>
+	</array>
+	<key>StandardErrorPath</key>
+	<string>/Users/willjasen/Library/Caches/TemporaryItems/local.wiljasen.omnifocus_tasks_to_calendar.err</string>
+	<key>StandardOutPath</key>
+	<string>/Users/willjasen/Library/Caches/TemporaryItems/local.wiljasen.omnifocus_tasks_to_calendar.out</string>
+	<key>StartCalendarInterval</key>
+	<array>
+		<dict>
+			<key>Minute</key>
+			<integer>0</integer>
+		</dict>
+		<dict>
+			<key>Minute</key>
+			<integer>15</integer>
+		</dict>
+		<dict>
+			<key>Minute</key>
+			<integer>30</integer>
+		</dict>
+		<dict>
+			<key>Minute</key>
+			<integer>45</integer>
+		</dict>
+	</array>
+</dict>
+</plist>
