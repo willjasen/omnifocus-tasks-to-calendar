@@ -10,12 +10,16 @@
 -- -- willjasen
 -- -- -- changed "set start_date to start_date - (task_estimate * minutes)" to "set start_date to end_date - (task_estimate * minutes)"
 -- -- -- changed so that only events from today forward are added to the calendar (decreases runtime)
+-- -- -- task notes are added into calendar event notes
+-- -- -- calendar events are only recreated if needed
 
 
 --  SCRIPT  --
 -- ******** --
 
 set numOfDaysToInclude to 3 --includes today
+set tags to {"👦🏻 Tyler","👩🏻 Mom","👨🏼 Nathaniel"}
+-- set calendar_elements to {"OmniFocus", "OmniFocus - 👦🏻 Tyler", "OmniFocus - 👩🏻 Mom", "OmniFocus - 👨🏼 Nathaniel"} as calendar
 
 property calendar_name : "OmniFocus"
 property calendar_name_2 : "OmniFocus - 👦🏻 Tyler"
@@ -33,45 +37,19 @@ set hours of theEndDate to 23
 set minutes of theEndDate to 59
 set seconds of theEndDate to 59
 
--- DELETE THE EXISTING EVENTS
+-- SET CALENDAR ELEMENTS
 tell application "Calendar"
 
-	--set calendar_names to {"OmniFocus", "OmniFocus - 👦🏻 Tyler", "OmniFocus - 👩🏻 Mom", "OmniFocus - 👨🏼 Nathaniel"}
-	--repeat with calendar_name in calendar_names
-
+	--repeat with calendar_elemental in calendar_elements
+	--	set calendar_elemental to calendar calendar
 	--end repeat
 
+  set calendar_element to calendar calendar_name
 	set calendar_element_2 to calendar calendar_name_2
-	--tell calendar calendar_name_2
-	--	set theEvents to every event
-	--	repeat with current_event in theEvents
-			-- set eventDeletions to "Deleting - " & {summary:current_event}
-			-- copy eventDeletions to stdout
-	--		delete current_event
-	--	end repeat
-	--end tell
-
 	set calendar_element_3 to calendar calendar_name_3
-	--tell calendar calendar_name_3
-	--	set theEvents to every event
-	--	repeat with current_event in theEvents
-			-- set eventDeletions to "Deleting - " & {summary:current_event}
-			-- copy eventDeletions to stdout
-	--		delete current_event
-	--	end repeat
-	--end tell
-
 	set calendar_element_4 to calendar calendar_name_4
-	--tell calendar calendar_name_4
-	--	set theEvents to every event
-	--	repeat with current_event in theEvents
-			-- set eventDeletions to "Deleting - " & {summary:current_event}
-			-- copy eventDeletions to stdout
-	--		delete current_event
-	--	end repeat
-	--end tell
 
-	set calendar_element to calendar calendar_name
+  -- THIS ISN'T NEEDED AT THE MOMENT
 	--tell calendar calendar_name
 	--	set theEvents to every event
 	--	repeat with current_event in theEvents
@@ -83,6 +61,7 @@ tell application "Calendar"
 
 end tell
 
+-- PROCESS OMNIFOCUS --
 tell application "OmniFocus"
 	tell default document
 
