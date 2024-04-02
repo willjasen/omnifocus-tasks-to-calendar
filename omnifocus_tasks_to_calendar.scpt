@@ -36,45 +36,50 @@ set seconds of theEndDate to 59
 -- DELETE THE EXISTING EVENTS
 tell application "Calendar"
 
+	--set calendar_names to {"OmniFocus", "OmniFocus - 👦🏻 Tyler", "OmniFocus - 👩🏻 Mom", "OmniFocus - 👨🏼 Nathaniel"}
+	--repeat with calendar_name in calendar_names
+
+	--end repeat
+
 	set calendar_element_2 to calendar calendar_name_2
-	tell calendar calendar_name_2
-		set theEvents to every event
-		repeat with current_event in theEvents
+	--tell calendar calendar_name_2
+	--	set theEvents to every event
+	--	repeat with current_event in theEvents
 			-- set eventDeletions to "Deleting - " & {summary:current_event}
 			-- copy eventDeletions to stdout
-			delete current_event
-		end repeat
-	end tell
+	--		delete current_event
+	--	end repeat
+	--end tell
 
 	set calendar_element_3 to calendar calendar_name_3
-	tell calendar calendar_name_3
-		set theEvents to every event
-		repeat with current_event in theEvents
+	--tell calendar calendar_name_3
+	--	set theEvents to every event
+	--	repeat with current_event in theEvents
 			-- set eventDeletions to "Deleting - " & {summary:current_event}
 			-- copy eventDeletions to stdout
-			delete current_event
-		end repeat
-	end tell
+	--		delete current_event
+	--	end repeat
+	--end tell
 
 	set calendar_element_4 to calendar calendar_name_4
-	tell calendar calendar_name_4
-		set theEvents to every event
-		repeat with current_event in theEvents
+	--tell calendar calendar_name_4
+	--	set theEvents to every event
+	--	repeat with current_event in theEvents
 			-- set eventDeletions to "Deleting - " & {summary:current_event}
 			-- copy eventDeletions to stdout
-			delete current_event
-		end repeat
-	end tell
+	--		delete current_event
+	--	end repeat
+	--end tell
 
 	set calendar_element to calendar calendar_name
-	tell calendar calendar_name
-		set theEvents to every event
-		repeat with current_event in theEvents
+	--tell calendar calendar_name
+	--	set theEvents to every event
+	--	repeat with current_event in theEvents
 			-- set eventDeletions to "Deleting - " & {summary:current_event}
 			-- copy eventDeletions to stdout
-			delete current_event
-		end repeat
-	end tell
+	--		delete current_event
+	--	end repeat
+	--end tell
 
 end tell
 
@@ -110,7 +115,10 @@ tell application "OmniFocus"
 					-- CREATE CALENDAR EVENT
 					tell application "Calendar"
 							tell calendar_element_2
-								if not (exists (first event whose (start date = start_date) and (summary = task_name))) then
+								if not (exists (first event whose (url = task_url))) then
+									make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element_2
+								else if (exists (first event whose (url = task_url) and ((summary is not equal to task_name) or (start date is not equal to start_date))))
+									delete (events whose (url is task_url))
 									make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element_2
 								end if
 							end tell
@@ -149,7 +157,10 @@ tell application "OmniFocus"
 					-- CREATE CALENDAR EVENT
 					tell application "Calendar"
 							tell calendar_element_3
-								if not (exists (first event whose (start date = start_date) and (summary = task_name))) then
+								if not (exists (first event whose (url = task_url))) then
+									make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element_3
+								else if (exists (first event whose (url = task_url) and ((summary is not equal to task_name) or (start date is not equal to start_date))))
+									delete (events whose (url is task_url))
 									make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element_3
 								end if
 							end tell
@@ -188,7 +199,10 @@ tell application "OmniFocus"
 					-- CREATE CALENDAR EVENT
 					tell application "Calendar"
 							tell calendar_element_4
-								if not (exists (first event whose (start date = start_date) and (summary = task_name))) then
+								if not (exists (first event whose (url = task_url))) then
+									make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element_4
+								else if (exists (first event whose (url = task_url) and ((summary is not equal to task_name) or (start date is not equal to start_date))))
+									delete (events whose (url is task_url))
 									make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element_4
 								end if
 							end tell
@@ -227,8 +241,10 @@ tell application "OmniFocus"
 				-- CREATE CALENDAR EVENT
 				tell application "Calendar"
 						tell calendar_element
-							if not (exists (first event whose (start date = start_date) and (summary = task_name))) then
-								-- adding notes causes an error, works otherwise
+							if not (exists (first event whose (url = task_url))) then
+								make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element
+							 else if (exists (first event whose (url = task_url) and ((summary is not equal to task_name) or (start date is not equal to start_date))))
+								delete (events whose (url is task_url))
 								make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element
 							end if
 						end tell
