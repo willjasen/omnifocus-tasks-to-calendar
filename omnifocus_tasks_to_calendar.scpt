@@ -15,7 +15,7 @@
 --  SCRIPT  --
 -- ******** --
 
-set numOfDaysToInclude to 7 --includes today
+set numOfDaysToInclude to 3 --includes today
 
 property calendar_name : "OmniFocus"
 property calendar_name_2 : "OmniFocus - 👦🏻 Tyler"
@@ -99,7 +99,6 @@ tell application "OmniFocus"
 					set task_url to "omnifocus:///task/" & id of the_task
 					set task_tag to primary tag of the_task
 					set task_tag_name to name of task_tag
-					set newNotes to "These are my event notes."
 					if task_estimate is missing value then
 						set task_estimate to default_duration
 					end if
@@ -112,7 +111,7 @@ tell application "OmniFocus"
 					tell application "Calendar"
 							tell calendar_element_2
 								if not (exists (first event whose (start date = start_date) and (summary = task_name))) then
-									make new event with properties {summary:task_name, start date:start_date, end date:end_date, url:task_url} at calendar_element_2
+									make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element_2
 								end if
 							end tell
 						end tell
@@ -151,7 +150,7 @@ tell application "OmniFocus"
 					tell application "Calendar"
 							tell calendar_element_3
 								if not (exists (first event whose (start date = start_date) and (summary = task_name))) then
-									make new event with properties {summary:task_name, start date:start_date, end date:end_date, url:task_url} at calendar_element_3
+									make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element_3
 								end if
 							end tell
 						end tell
@@ -190,7 +189,7 @@ tell application "OmniFocus"
 					tell application "Calendar"
 							tell calendar_element_4
 								if not (exists (first event whose (start date = start_date) and (summary = task_name))) then
-									make new event with properties {summary:task_name, start date:start_date, end date:end_date, url:task_url} at calendar_element_4
+									make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element_4
 								end if
 							end tell
 						end tell
@@ -229,18 +228,10 @@ tell application "OmniFocus"
 				tell application "Calendar"
 						tell calendar_element
 							if not (exists (first event whose (start date = start_date) and (summary = task_name))) then
-						  	-- set newNotes to text returned of (display dialog "Enter new notes:" default answer "")
 								-- adding notes causes an error, works otherwise
-								-- make new event with properties {summary:task_name, start date:start_date, end date:end_date, url:task_url, notes:newNotes} at calendar_element
-								make new event with properties {summary:task_name, start date:start_date, end date:end_date, url:task_url} at calendar_element
+								make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element
 							end if
 						end tell
-
-						--tell calendar_element_2
-						--	if not (exists (first event whose (start date = start_date) and (summary = task_name))) then
-						--		make new event with properties {summary:task_name, start date:start_date, end date:end_date, url:task_url} at calendar_element_2
-						--	end if
-						--end tell
 					end tell
 				end if
 			end if
