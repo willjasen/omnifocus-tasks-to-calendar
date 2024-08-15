@@ -63,84 +63,53 @@ tell application "Calendar"
 
 end tell
 
-
-on processOmniFocusTasks(tasks)
-	repeat with item_ref in tasks
-
-		--set the_task to contents of item_ref
-		--set task_due to due date of the_task
-		--display dialog task_due
-	--	set task_name to name of the_task
-	--	set task_note to note of the_task
-	--	set task_estimate to estimated minutes of the_task
-	--	set task_url to "omnifocus:///task/" & id of the_task
-	--	set task_tag to primary tag of the_task
-	--	set task_tag_name to name of task_tag
-	--	if task_estimate is missing value then
-	--		set task_estimate to default_duration
-	--	end if
-	--	set end_date to task_due
-	--	set start_date to end_date - (task_estimate * minutes)
-
-		-- CREATE CALENDAR EVENT
-	--	tell application "Calendar"
-	--		tell calendar_element_2
-	--			if not (exists (first event whose (url = task_url))) then
-	--				make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element_2
-	--			else if (exists (first event whose (url = task_url) and ((summary is not equal to task_name) or (start date is not equal to start_date))))
-	--				delete (events whose (url is task_url))
-	--				make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element_2
-	--			end if
-	--		end tell
-	--	end tell
-
-	end repeat
-end processOmniFocusTasks
-
-
 -- PROCESS OMNIFOCUS --
 tell application "OmniFocus"
 	tell default document
 
 		set task_elements to flattened tasks whose ¬
-			(completed is false) and (due date ≠ missing value) and (due date is greater than or equal to theStartDate) and (due date is less than or equal to theEndDate) and (name of primary tag contains "👦🏻 Tyler")
-		-- processOmniFocusTasks(task_elements)
-
+			(completed is false) and (due date ≠ missing value) and (name of primary tag contains "👦🏻 Tyler")
 		repeat with item_ref in task_elements
 
-			set the_task to contents of item_ref
-			set task_due to due date of the_task
-			set task_name to name of the_task
-			set task_note to note of the_task
-			set task_estimate to estimated minutes of the_task
-			set task_url to "omnifocus:///task/" & id of the_task
-			set task_tag to primary tag of the_task
-			set task_tag_name to name of task_tag
-			set newNotes to "These are my event notes."
-			if task_estimate is missing value then
-				set task_estimate to default_duration
-			end if
+				-- GET OMNIFOCUS TASKS
+				set the_task to contents of item_ref
+				set task_due to due date of the_task
 
-			-- BUILD CALENDAR DATE
-			set end_date to task_due
-			set start_date to end_date - (task_estimate * minutes)
-			-- CREATE CALENDAR EVENT
-			tell application "Calendar"
-				tell calendar_element_2
-					if not (exists (first event whose (url = task_url))) then
-						make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element_2
-					else if (exists (first event whose (url = task_url) and ((summary is not equal to task_name) or (start date is not equal to start_date))))
-						delete (events whose (url is task_url))
-						make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element_2
+				-- IF THE TASK IS DUE TODAY AND IS WITHIN THE INCLUDED RANGE, THEN PROCESS IT; SKIP THE PAST
+				if task_due is greater than or equal to theStartDate then
+					if task_due is less than or equal to theEndDate then
+
+					set task_name to name of the_task
+					set task_note to note of the_task
+					set task_estimate to estimated minutes of the_task
+					set task_url to "omnifocus:///task/" & id of the_task
+					set task_tag to primary tag of the_task
+					set task_tag_name to name of task_tag
+					if task_estimate is missing value then
+						set task_estimate to default_duration
 					end if
-				end tell
-			end tell
 
+					-- BUILD CALENDAR DATE
+					-- copy "Creating event: " & task_name to stdout
+					set end_date to task_due
+					set start_date to end_date - (task_estimate * minutes)
+					-- CREATE CALENDAR EVENT
+					tell application "Calendar"
+							tell calendar_element_2
+								if not (exists (first event whose (url = task_url))) then
+									make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element_2
+								else if (exists (first event whose (url = task_url) and ((summary is not equal to task_name) or (start date is not equal to start_date))))
+									delete (events whose (url is task_url))
+									make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element_2
+								end if
+							end tell
+						end tell
+					end if
+				end if
 		end repeat
 
-
 		set task_elements to flattened tasks whose ¬
-			(completed is false) and (due date ≠ missing value) and (due date is greater than or equal to theStartDate) and (due date is less than or equal to theEndDate) and ((name of primary tag contains "👩🏻 Mom") or (name of primary tag contains "👦🏼 Isaac"))
+			(completed is false) and (due date ≠ missing value) and ((name of primary tag contains "👩🏻 Mom") or (name of primary tag contains "👦🏼 Isaac"))
 		repeat with item_ref in task_elements
 
 				-- GET OMNIFOCUS TASKS
