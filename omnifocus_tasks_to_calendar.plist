@@ -3,13 +3,13 @@
 <plist version="1.0">
 <dict>
 	<key>Disabled</key>
-	<true/>
+	<false/>
 	<key>Label</key>
-	<string>local.wiljasen.omnifocus_tasks_to_calendar</string>
+	<string>willjasen.omnifocus_tasks_to_calendar</string>
 	<key>ProgramArguments</key>
 	<array>
-		<string>osascript</string>
-		<string>/Users/willjasen/.scripts/omnifocus-tasks-to-calendar/omnifocus_tasks_to_calendar.scpt</string>
+	<string>osascript</string>
+	<string>/Users/willjasen/.scripts/omnifocus-tasks-to-calendar/omnifocus_tasks_to_calendar.scpt</string>
 	</array>
 	<key>StandardErrorPath</key>
 	<string>/Users/willjasen/Library/Caches/TemporaryItems/local.wiljasen.omnifocus_tasks_to_calendar.err</string>
@@ -20,26 +20,6 @@
 		<dict>
 			<key>Minute</key>
 			<integer>0</integer>
-		</dict>
-		<dict>
-			<key>Minute</key>
-			<integer>10</integer>
-		</dict>
-		<dict>
-			<key>Minute</key>
-			<integer>20</integer>
-		</dict>
-		<dict>
-			<key>Minute</key>
-			<integer>30</integer>
-		</dict>
-		<dict>
-			<key>Minute</key>
-			<integer>40</integer>
-		</dict>
-		<dict>
-			<key>Minute</key>
-			<integer>50</integer>
 		</dict>
 	</array>
 </dict>
