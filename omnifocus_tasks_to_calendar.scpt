@@ -17,6 +17,8 @@
 --  SCRIPT  --
 -- ******** --
 
+display notification "OmniFocus is now syncing to Calendar" with title "Syncing..."
+
 set numOfDaysToInclude to 7 --includes today
 set tags to {"👦🏻 Tyler","👩🏻 Mom","👨🏼 Nathaniel"}
 -- set calendar_elements to {"OmniFocus", "OmniFocus - 👦🏻 Tyler", "OmniFocus - 👩🏻 Mom", "OmniFocus - 👨🏼 Nathaniel"} as calendar
