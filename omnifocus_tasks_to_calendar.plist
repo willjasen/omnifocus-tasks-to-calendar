@@ -5,7 +5,7 @@
 	<key>Disabled</key>
 	<false/>
 	<key>Label</key>
-	<string>willjasen.omnifocus_tasks_to_calendar</string>
+	<string>omnifocus_tasks_to_calendar</string>
 	<key>ProgramArguments</key>
 	<array>
 	<string>osascript</string>
