@@ -92,15 +92,17 @@ on processOmniFocusTasks(tasks)
 
 				-- CREATE CALENDAR EVENT
 				tell application "Calendar"
-				tell calendar_element_2
-				if not (exists (first event whose (url = task_url))) then
-					make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element_2
-				else if (exists (first event whose (url = task_url) and ((summary is not equal to task_name) or (start date is not equal to start_date))))
-					delete (events whose (url is task_url))
-					make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element_2
-				end if
-			end tell
-		end tell
+					tell calendar_element_2
+						if not (exists (first event whose (url = task_url))) then
+							make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element_2
+						else if (exists (first event whose (url = task_url) and ((summary is not equal to task_name) or (start date is not equal to start_date))))
+							delete (events whose (url is task_url))
+							make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element_2
+						end if
+					end tell
+				end tell
+			end if
+		end if
 
 	end repeat
 end processOmniFocusTasks
