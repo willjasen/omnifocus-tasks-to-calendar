@@ -286,3 +286,5 @@ tell application "OmniFocus"
 
 	end tell
 end tell
+
+display notification "OmniFocus syncing to Calendar is finished" with title "Sync Complete!"
