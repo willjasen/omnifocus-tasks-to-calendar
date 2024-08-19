@@ -18,7 +18,7 @@
 -- ******** --
 
 set numOfDaysToInclude to 3 --includes today
---set tags to {"👦🏻 Tyler","👩🏻 Mom","👨🏼 Nathaniel"}
+--set tagsToSync to {"👦🏻 Tyler","👩🏻 Mom","👨🏼 Nathaniel"}
 -- set calendar_elements to {"OmniFocus", "OmniFocus - 👦🏻 Tyler", "OmniFocus - 👩🏻 Mom", "OmniFocus - 👨🏼 Nathaniel"} as calendar
 
 --property calendar_name : "OmniFocus"
@@ -56,9 +56,9 @@ end deleteCalendarEvents
 
 
 -- PROCESS OMNIFOCUS TASKS --
-on processOmniFocusTasks(sharedTag,calendar_name)
+on processOmniFocusTasks(tags_to_sync,calendar_name)
 
-	log("Processing: " & sharedTag)
+	log("Processing: " & tags_to_sync)
 
 	global theStartDate, theEndDate, calendar_element
 	
@@ -82,7 +82,7 @@ on processOmniFocusTasks(sharedTag,calendar_name)
 
 				-- Check if the tag exists in the task's tags
 				repeat with aTag in task_tags
-					if name of aTag is sharedTag then
+					if name of aTag is in tags_to_sync then
 						set tagExists to true
 						exit repeat
 					end if
@@ -132,6 +132,12 @@ end processOmniFocusTasks
 deleteCalendarEvents("OmniFocus - 👦🏻 Tyler")
 deleteCalendarEvents("OmniFocus - 👩🏻 Mom")
 deleteCalendarEvents("OmniFocus - 👨🏼 Nathaniel")
+
+set tagsToSync to {"👦🏻 Tyler","👩🏻 Mom","👨🏼 Nathaniel"}
 processOmniFocusTasks("👦🏻 Tyler","OmniFocus - 👦🏻 Tyler")
+
+set tagsToSync to {"👦🏻 Tyler","👩🏻 Mom","👨🏼 Nathaniel"}
 processOmniFocusTasks("👩🏻 Mom","OmniFocus - 👩🏻 Mom")
+
+set tagsToSync to {"👦🏻 Tyler","👩🏻 Mom","👨🏼 Nathaniel"}
 processOmniFocusTasks("👨🏼 Nathaniel","OmniFocus - 👨🏼 Nathaniel")
