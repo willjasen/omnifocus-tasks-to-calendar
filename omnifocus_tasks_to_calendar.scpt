@@ -225,4 +225,4 @@ set tagsToSync to {"👨🏼 Nathaniel","👦🏼 Isaac","🧑🏻‍🦰 Carter
 processOmniFocusSharedTasks(tagsToSync,"OmniFocus - 👨🏼 Nathaniel")
 
 set tagsToIgnore to {"👦🏻 Tyler","👩🏻 Mom","👨🏼 Nathaniel","👦🏼 Isaac","🧑🏻‍🦰 Carter"}
-processOmniFocusMyTasks(tagsToSync,"OmniFocus")
+processOmniFocusMyTasks(tagsToIgnore,"OmniFocus")
