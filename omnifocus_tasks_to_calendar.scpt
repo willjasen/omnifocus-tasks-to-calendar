@@ -93,8 +93,6 @@ on processOmniFocusSharedTasks(tags_to_sync,calendar_name)
 					set task_note to note of the_task
 					set task_estimate to estimated minutes of the_task
 					set task_url to "omnifocus:///task/" & id of the_task
-					set task_tag to primary tag of the_task
-					set task_tag_name to name of task_tag
 					if task_estimate is missing value then
 						set task_estimate to default_duration
 					end if
@@ -176,8 +174,6 @@ on processOmniFocusMyTasks(tags_to_ignore,calendar_name)
 					set task_note to note of the_task
 					set task_estimate to estimated minutes of the_task
 					set task_url to "omnifocus:///task/" & id of the_task
-					set task_tag to primary tag of the_task
-					set task_tag_name to name of task_tag
 					if task_estimate is missing value then
 						set task_estimate to default_duration
 					end if
