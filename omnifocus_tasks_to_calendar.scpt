@@ -1,6 +1,6 @@
 -- ** OVERVIEW ** --
 -- This code creates macOS Calendar events from OmniFocus tasks that are due today or in the future
--- In regards to runtime, all events on the specified calendar are deleted and then recreated
+-- In regards to runtime, all events on the specified calendars are deleted en masse and then recreated
 
 
 -- ** HISTORY ** --
@@ -11,7 +11,6 @@
 -- -- -- changed "set start_date to start_date - (task_estimate * minutes)" to "set start_date to end_date - (task_estimate * minutes)"
 -- -- -- changed so that only events from today forward are added to the calendar (decreases runtime)
 -- -- -- task notes are added into calendar event notes
--- -- -- calendar events are only recreated if needed
 -- -- -- shared tags no longer need to be the primary tag in the task (2024-08-19)
 -- -- -- refactored script to use handlers (2024-08-19)
 
@@ -22,8 +21,9 @@
 
 display notification "OmniFocus is now syncing to Calendar" with title "Syncing..."
 
-set numOfDaysToInclude to 7 --includes today
-property default_duration : 30 --in minutes
+set calendar_element to missing value  --initialize to null
+set numOfDaysToInclude to 7  --includes today
+property default_duration : 30  --in minutes
 
 set theStartDate to current date
 set hours of theStartDate to 0
@@ -35,8 +35,6 @@ set hours of theEndDate to 23
 set minutes of theEndDate to 59
 set seconds of theEndDate to 59
 
-set calendar_element to missing value
-
 
 -- HANDLER :: DELETE CALENDAR EVENTS ON A GIVEN CALENDAR --
 on deleteCalendarEvents(calendar_name)
@@ -44,7 +42,6 @@ on deleteCalendarEvents(calendar_name)
 	global calendar_element
   
 	tell application "Calendar"
-
 
 		set calendar_element to calendar calendar_name
 		delete (every event of calendar_element)
@@ -104,16 +101,8 @@ on processOmniFocusSharedTasks(tags_to_sync,calendar_name)
 					-- CREATE CALENDAR EVENT
 					tell application "Calendar"
 						set calendar_element to calendar calendar_name
-						tell calendar_element
-							
+						tell calendar_element							
 							make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element
-
-							--if not (exists (first event whose (url = task_url))) then
-							--	make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element
-							--else if (exists (first event whose (url = task_url) and ((summary is not equal to task_name) or (start date is not equal to start_date))))
-							--	delete (events whose (url is task_url))
-							--	make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element
-							--end if
 						end tell
 					end tell
 
@@ -187,18 +176,9 @@ on processOmniFocusMyTasks(tags_to_ignore,calendar_name)
 
 					-- CREATE CALENDAR EVENT
 					tell application "Calendar"
-
 						set calendar_element to calendar calendar_name
 						tell calendar_element
-
 							make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element
-
-							--if not (exists (first event whose (url = task_url))) then
-							--	make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element
-							--else if (exists (first event whose (url = task_url) and ((summary is not equal to task_name) or (start date is not equal to start_date))))
-							--	delete (events whose (url is task_url))
-							--	make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element
-							--end if
 						end tell
 					end tell
 
