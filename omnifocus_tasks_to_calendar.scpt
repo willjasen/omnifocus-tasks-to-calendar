@@ -150,9 +150,9 @@ on processOmniFocusMyTasks(tags_to_ignore,calendar_name)
 				set excludeTask to false
 
 				-- If there are no tags on the tasks, skip the task
-				if (count of task_tags) = 0 then
-					set excludeTask to true
-				end if
+				--if (count of task_tags) = 0 then
+				--	set excludeTask to true
+				--end if
 
 				-- If there in an excluded tag, skip the task
 				if excludeTask is false then
