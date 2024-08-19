@@ -37,7 +37,7 @@ set hours of theEndDate to 23
 set minutes of theEndDate to 59
 set seconds of theEndDate to 59
 
---set calendar_element to calendar calendar_name_4
+set calendar_element to missing value
 
 
 -- DELETE CALENDAR EVENTS ON A GIVEN CALENDAR --
@@ -48,13 +48,7 @@ on deleteCalendarEvents(calendar_name)
 	tell application "Calendar"
 
 		set calendar_element to calendar calendar_name
-
-		tell calendar calendar_name
-			set theEvents to every event
-			repeat with current_event in theEvents
-				delete current_event
-			end repeat
-		end tell
+		delete (every event of calendar_element)
 
 	end tell
 
@@ -63,6 +57,8 @@ end deleteCalendarEvents
 
 -- PROCESS OMNIFOCUS TASKS --
 on processOmniFocusTasks(sharedTag,calendar_name)
+
+	log("Processing: " & sharedTag)
 
 	global theStartDate, theEndDate, calendar_element
 	
@@ -122,6 +118,11 @@ on processOmniFocusTasks(sharedTag,calendar_name)
 
 end processOmniFocusTasks
 
+
 -- CALL THE HANDLERS WITH PARAMETERS --
 deleteCalendarEvents("OmniFocus - 👦🏻 Tyler")
 processOmniFocusTasks("👦🏻 Tyler","OmniFocus - 👦🏻 Tyler")
+deleteCalendarEvents("OmniFocus - 👩🏻 Mom")
+processOmniFocusTasks("👩🏻 Mom","OmniFocus - 👩🏻 Mom")
+deleteCalendarEvents("OmniFocus - 👨🏼 Nathaniel")
+processOmniFocusTasks("👨🏼 Nathaniel","OmniFocus - 👨🏼 Nathaniel")
