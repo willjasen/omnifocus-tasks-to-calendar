@@ -12,14 +12,17 @@
 -- -- -- changed so that only events from today forward are added to the calendar (decreases runtime)
 -- -- -- task notes are added into calendar event notes
 -- -- -- calendar events are only recreated if needed
--- -- -- refactored script to use handlers
+-- -- -- shared tags no longer need to be the primary tag in the task (2024-08-19)
+-- -- -- refactored script to use handlers (2024-08-19)
 
 
 -- ******** --
 --  SCRIPT  --
 -- ******** --
 
-set numOfDaysToInclude to 3 --includes today
+display notification "OmniFocus is now syncing to Calendar" with title "Syncing..."
+
+set numOfDaysToInclude to 7 --includes today
 property default_duration : 30 --in minutes
 
 set theStartDate to current date
@@ -39,8 +42,9 @@ set calendar_element to missing value
 on deleteCalendarEvents(calendar_name)
 
 	global calendar_element
-
+  
 	tell application "Calendar"
+
 
 		set calendar_element to calendar calendar_name
 		delete (every event of calendar_element)
@@ -71,7 +75,6 @@ on processOmniFocusSharedTasks(tags_to_sync,calendar_name)
 				-- GET OMNIFOCUS TASKS
 				set the_task to contents of item_ref
 				set task_tags to tags of the_task
-				
 				set tagExists to false
 
 				-- Check if the tag exists in the task's tags
@@ -141,6 +144,7 @@ on processOmniFocusMyTasks(tags_to_ignore,calendar_name)
 
 			repeat with item_ref in task_elements
 
+
 				-- GET OMNIFOCUS TASKS
 				set the_task to contents of item_ref
 				set task_tags to tags of the_task
@@ -184,6 +188,7 @@ on processOmniFocusMyTasks(tags_to_ignore,calendar_name)
 
 					-- CREATE CALENDAR EVENT
 					tell application "Calendar"
+
 						set calendar_element to calendar calendar_name
 						tell calendar_element
 							if not (exists (first event whose (url = task_url))) then
@@ -205,8 +210,10 @@ on processOmniFocusMyTasks(tags_to_ignore,calendar_name)
 end processOmniFocusMyTasks
 
 
-
+-- ********************************* --
 -- CALL THE HANDLERS WITH PARAMETERS --
+-- ********************************* --
+
 deleteCalendarEvents("OmniFocus - 👦🏻 Tyler")
 deleteCalendarEvents("OmniFocus - 👩🏻 Mom")
 deleteCalendarEvents("OmniFocus - 👨🏼 Nathaniel")
