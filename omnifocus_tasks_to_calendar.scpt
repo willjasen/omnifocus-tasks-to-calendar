@@ -105,12 +105,15 @@ on processOmniFocusSharedTasks(tags_to_sync,calendar_name)
 					tell application "Calendar"
 						set calendar_element to calendar calendar_name
 						tell calendar_element
-							if not (exists (first event whose (url = task_url))) then
-								make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element
-							else if (exists (first event whose (url = task_url) and ((summary is not equal to task_name) or (start date is not equal to start_date))))
-								delete (events whose (url is task_url))
-								make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element
-							end if
+							
+							make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element
+
+							--if not (exists (first event whose (url = task_url))) then
+							--	make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element
+							--else if (exists (first event whose (url = task_url) and ((summary is not equal to task_name) or (start date is not equal to start_date))))
+							--	delete (events whose (url is task_url))
+							--	make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element
+							--end if
 						end tell
 					end tell
 
@@ -187,12 +190,15 @@ on processOmniFocusMyTasks(tags_to_ignore,calendar_name)
 
 						set calendar_element to calendar calendar_name
 						tell calendar_element
-							if not (exists (first event whose (url = task_url))) then
-								make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element
-							else if (exists (first event whose (url = task_url) and ((summary is not equal to task_name) or (start date is not equal to start_date))))
-								delete (events whose (url is task_url))
-								make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element
-							end if
+
+							make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element
+
+							--if not (exists (first event whose (url = task_url))) then
+							--	make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element
+							--else if (exists (first event whose (url = task_url) and ((summary is not equal to task_name) or (start date is not equal to start_date))))
+							--	delete (events whose (url is task_url))
+							--	make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element
+							--end if
 						end tell
 					end tell
 
@@ -226,3 +232,5 @@ processOmniFocusSharedTasks(tagsToSync,"OmniFocus - 👨🏼 Nathaniel")
 
 set tagsToIgnore to {"👦🏻 Tyler","👩🏻 Mom","👨🏼 Nathaniel","👦🏼 Isaac","🧑🏻‍🦰 Carter"}
 processOmniFocusMyTasks(tagsToIgnore,"OmniFocus")
+
+display notification "OmniFocus is finished syncing to Calendar" with title "Syncing Complete!"
