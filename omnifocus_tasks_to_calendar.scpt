@@ -12,6 +12,7 @@
 -- -- -- changed so that only events from today forward are added to the calendar (decreases runtime)
 -- -- -- task notes are added into calendar event notes
 -- -- -- calendar events are only recreated if needed
+-- -- -- shared tags no longer need to be the primary tag in the task (2024-08-19)
 
 
 --  SCRIPT  --
