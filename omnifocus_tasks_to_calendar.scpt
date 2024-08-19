@@ -89,7 +89,9 @@ tell application "OmniFocus"
 	tell default document
 
 		set task_elements to flattened tasks whose ¬
-			(completed is false) and (due date ≠ missing value) and (due date is greater than or equal to theStartDate) and (due date is less than or equal to theEndDate)
+			(completed is false) and (due date ≠ missing value) and ¬
+			(due date is greater than or equal to theStartDate) and ¬
+			(due date is less than or equal to theEndDate)
 
 		repeat with item_ref in task_elements
 
@@ -115,10 +117,24 @@ tell application "OmniFocus"
 				set task_url to "omnifocus:///task/" & id of the_task
 				set task_tag to primary tag of the_task
 				set task_tag_name to name of task_tag
-				set newNotes to "These are my event notes."
 				if task_estimate is missing value then
 					set task_estimate to default_duration
 				end if
+				-- Check if the task is flagged
+    			set is_flagged to flagged of the_task
+				
+
+				--set task_project_name to ""
+				--try
+				--	set task_project_name to name of the project of the_task
+				--on error
+				--	set task_project_name to "No Project"
+				--end try
+
+				-- Combine notes
+        		-- set event_note to task_project_name & linefeed & linefeed & task_note
+				set event_note to task_note
+
 
 				-- BUILD CALENDAR DATE
 				set end_date to task_due
@@ -127,11 +143,18 @@ tell application "OmniFocus"
 				tell application "Calendar"
 					tell calendar_element_2
 						if not (exists (first event whose (url = task_url))) then
-							make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element_2
+							make new event with properties {summary:task_name, description:event_note, start date:start_date, end date:end_date, url:task_url} at calendar_element_2
 						else if (exists (first event whose (url = task_url) and ((summary is not equal to task_name) or (start date is not equal to start_date))))
 							delete (events whose (url is task_url))
 							make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element_2
 						end if
+
+						-- If the task is flagged, add an alert to the event
+						--if is_flagged then
+						--	tell new_event
+						--		make new alarm with properties {trigger interval:-15} -- 15 minutes before the event
+						--	end tell
+						--end if
 					end tell
 				end tell
             end if
@@ -140,7 +163,11 @@ tell application "OmniFocus"
 
 
 		set task_elements to flattened tasks whose ¬
-			(completed is false) and (due date ≠ missing value) and (due date is greater than or equal to theStartDate) and (due date is less than or equal to theEndDate)
+			(completed is false) and ¬
+			(due date ≠ missing value) and ¬
+			(due date is greater than or equal to theStartDate) and ¬
+			(due date is less than or equal to theEndDate)
+		
 		repeat with item_ref in task_elements
 
 				-- GET OMNIFOCUS TASKS
@@ -191,7 +218,11 @@ tell application "OmniFocus"
 		end repeat
 
 		set task_elements to flattened tasks whose ¬
-			(completed is false) and (due date ≠ missing value) and (due date is greater than or equal to theStartDate) and (due date is less than or equal to theEndDate)
+			(completed is false) and ¬
+			(due date ≠ missing value) and ¬
+			(due date is greater than or equal to theStartDate) and ¬
+			(due date is less than or equal to theEndDate)
+			
 		repeat with item_ref in task_elements
 
 				-- GET OMNIFOCUS TASKS
