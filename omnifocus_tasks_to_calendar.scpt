@@ -88,7 +88,7 @@ tell application "OmniFocus"
 	tell default document
 
 		set task_elements to flattened tasks whose ¬
-			(completed is false) and (due date ≠ missing value) and (due date is greater than or equal to theStartDate) and (due date is less than or equal to theEndDate) and (name of primary tag contains "👦🏻 Tyler")
+			(completed is false) and (due date ≠ missing value) and (due date is greater than or equal to theStartDate) and (due date is less than or equal to theEndDate)
 
 		repeat with item_ref in task_elements
 
