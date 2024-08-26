@@ -90,6 +90,7 @@ on processOmniFocusSharedTasks(tags_to_sync,calendar_name)
 					set task_note to note of the_task
 					set task_estimate to estimated minutes of the_task
 					set task_url to "omnifocus:///task/" & id of the_task
+					set is_flagged to flagged of the_task
 					if task_estimate is missing value then
 						set task_estimate to default_duration
 					end if
@@ -102,8 +103,13 @@ on processOmniFocusSharedTasks(tags_to_sync,calendar_name)
 					tell application "Calendar"
 						set calendar_element to calendar calendar_name
 						tell calendar_element							
-							make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element
+							set newEvent to make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element
 						end tell
+						if is_flagged then
+							tell newEvent
+								make new display alarm at end with properties {trigger interval:0}
+							end tell
+						end if
 					end tell
 
 				end if				
@@ -134,17 +140,11 @@ on processOmniFocusMyTasks(tags_to_ignore,calendar_name)
 
 			repeat with item_ref in task_elements
 
-
 				-- GET OMNIFOCUS TASKS
 				set the_task to contents of item_ref
 				set task_tags to tags of the_task
 
 				set excludeTask to false
-
-				-- If there are no tags on the tasks, skip the task
-				--if (count of task_tags) = 0 then
-				--	set excludeTask to true
-				--end if
 
 				-- If there in an excluded tag, skip the task
 				if excludeTask is false then
@@ -166,6 +166,7 @@ on processOmniFocusMyTasks(tags_to_ignore,calendar_name)
 					set task_note to note of the_task
 					set task_estimate to estimated minutes of the_task
 					set task_url to "omnifocus:///task/" & id of the_task
+					set is_flagged to flagged of the_task
 					if task_estimate is missing value then
 						set task_estimate to default_duration
 					end if
@@ -178,8 +179,13 @@ on processOmniFocusMyTasks(tags_to_ignore,calendar_name)
 					tell application "Calendar"
 						set calendar_element to calendar calendar_name
 						tell calendar_element
-							make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element
+							 set newEvent to make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element
 						end tell
+						if is_flagged then
+							tell newEvent
+								make new display alarm at end with properties {trigger interval:0}
+							end tell
+						end if
 					end tell
 
 				end if				
