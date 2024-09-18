@@ -13,30 +13,39 @@
 -- -- -- task notes are added into calendar event notes
 -- -- -- shared tags no longer need to be the primary tag in the task (2024-08-19)
 -- -- -- refactored script to use handlers (2024-08-19)
+-- -- -- make the calendar alert align with task's due date
 
 
 -- ******** --
 --  SCRIPT  --
 -- ******** --
 
+-- Start a stopwatch
+set stopwatchStart to current date
+
+-- Let the user know that the script has started
 display notification "OmniFocus is now syncing to Calendar" with title "Syncing..."
 
+-- Create global variables
 set calendar_element to missing value  --initialize to null
 set numOfDaysToInclude to 7  --includes today
 property default_duration : 30  --in minutes
 
+-- for the days to pull tasks from, set the start date to today's date at the prior midnight
 set theStartDate to current date
 set hours of theStartDate to 0
 set minutes of theStartDate to 0
 set seconds of theStartDate to 0
 
+-- for the days to pull tasks from, set the end date to today's date plus how many days to look forward
 set theEndDate to current date + (days * (numOfDaysToInclude - 1))
 set hours of theEndDate to 23
 set minutes of theEndDate to 59
 set seconds of theEndDate to 59
 
-
--- HANDLER :: DELETE CALENDAR EVENTS ON A GIVEN CALENDAR --
+--
+-- HANDLER :: DELETE ALL CALENDAR EVENTS ON A GIVEN CALENDAR --
+--
 on deleteCalendarEvents(calendar_name)
 
 	global calendar_element
@@ -50,8 +59,9 @@ on deleteCalendarEvents(calendar_name)
 
 end deleteCalendarEvents
 
-
+--
 -- HANDLER :: PROCESS OMNIFOCUS SHARED TASKS --
+--
 on processOmniFocusSharedTasks(tags_to_sync,calendar_name)
 
 	log("Processing tags: " & tags_to_sync)
@@ -107,7 +117,8 @@ on processOmniFocusSharedTasks(tags_to_sync,calendar_name)
 						end tell
 						if is_flagged then
 							tell newEvent
-								make new display alarm at end with properties {trigger interval:0}
+								-- Set the alert to trigger at the due date (end_date)
+								make new display alarm at end with properties {trigger interval:task_estimate}
 							end tell
 						end if
 					end tell
@@ -121,8 +132,9 @@ on processOmniFocusSharedTasks(tags_to_sync,calendar_name)
 
 end processOmniFocusSharedTasks
 
-
+--
 -- HANDLER :: PROCESS OMNIFOCUS MY TASKS --
+--
 on processOmniFocusMyTasks(tags_to_ignore,calendar_name)
 
 	log("Processing: My Tasks")
@@ -183,7 +195,7 @@ on processOmniFocusMyTasks(tags_to_ignore,calendar_name)
 						end tell
 						if is_flagged then
 							tell newEvent
-								make new display alarm at end with properties {trigger interval:0}
+								make new display alarm at end with properties {trigger interval:task_estimate}
 							end tell
 						end if
 					end tell
@@ -202,11 +214,15 @@ end processOmniFocusMyTasks
 -- CALL THE HANDLERS WITH PARAMETERS --
 -- ********************************* --
 
+
+-- Delete all events from the affected calendars
+deleteCalendarEvents("OmniFocus")
 deleteCalendarEvents("OmniFocus - 👦🏻 Tyler")
 deleteCalendarEvents("OmniFocus - 👩🏻 Mom")
 deleteCalendarEvents("OmniFocus - 👨🏼 Nathaniel")
-deleteCalendarEvents("OmniFocus")
 
+
+-- Sync all of the calendars
 set tagsToSync to {"👦🏻 Tyler"}
 processOmniFocusSharedTasks(tagsToSync,"OmniFocus - 👦🏻 Tyler")
 
@@ -219,4 +235,11 @@ processOmniFocusSharedTasks(tagsToSync,"OmniFocus - 👨🏼 Nathaniel")
 set tagsToIgnore to {"👦🏻 Tyler","👩🏻 Mom","👨🏼 Nathaniel","👦🏼 Isaac","🧑🏻‍🦰 Carter"}
 processOmniFocusMyTasks(tagsToIgnore,"OmniFocus")
 
-display notification "OmniFocus is finished syncing to Calendar" with title "Syncing Complete!"
+
+-- Stop the stopwatch
+set stopwatchStop to current date
+-- Subtract the two dates
+set runtimeSeconds to (stopwatchStop - stopwatchStart)
+
+-- Let the user know that the script has finished
+display notification "OmniFocus is finished syncing to Calendar, took " & runtimeSeconds & " seconds" with title "Syncing Complete!"
