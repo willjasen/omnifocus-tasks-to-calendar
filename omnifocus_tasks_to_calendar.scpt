@@ -19,6 +19,9 @@
 --  SCRIPT  --
 -- ******** --
 
+# Start a stopwatch
+set stopwatchStart to current date
+
 display notification "OmniFocus is now syncing to Calendar" with title "Syncing..."
 
 set calendar_element to missing value  --initialize to null
@@ -107,7 +110,8 @@ on processOmniFocusSharedTasks(tags_to_sync,calendar_name)
 						end tell
 						if is_flagged then
 							tell newEvent
-								make new display alarm at end with properties {trigger interval:0}
+								-- Set the alert to trigger at the due date (end_date)
+								make new display alarm at end with properties {trigger interval:task_estimate}
 							end tell
 						end if
 					end tell
@@ -183,7 +187,7 @@ on processOmniFocusMyTasks(tags_to_ignore,calendar_name)
 						end tell
 						if is_flagged then
 							tell newEvent
-								make new display alarm at end with properties {trigger interval:0}
+								make new display alarm at end with properties {trigger interval:task_estimate}
 							end tell
 						end if
 					end tell
@@ -202,11 +206,15 @@ end processOmniFocusMyTasks
 -- CALL THE HANDLERS WITH PARAMETERS --
 -- ********************************* --
 
+
+-- Delete all events from the affected calendars
+deleteCalendarEvents("OmniFocus")
 deleteCalendarEvents("OmniFocus - 👦🏻 Tyler")
 deleteCalendarEvents("OmniFocus - 👩🏻 Mom")
 deleteCalendarEvents("OmniFocus - 👨🏼 Nathaniel")
-deleteCalendarEvents("OmniFocus")
 
+
+-- Sync all of the calendars
 set tagsToSync to {"👦🏻 Tyler"}
 processOmniFocusSharedTasks(tagsToSync,"OmniFocus - 👦🏻 Tyler")
 
@@ -219,4 +227,10 @@ processOmniFocusSharedTasks(tagsToSync,"OmniFocus - 👨🏼 Nathaniel")
 set tagsToIgnore to {"👦🏻 Tyler","👩🏻 Mom","👨🏼 Nathaniel","👦🏼 Isaac","🧑🏻‍🦰 Carter"}
 processOmniFocusMyTasks(tagsToIgnore,"OmniFocus")
 
-display notification "OmniFocus is finished syncing to Calendar" with title "Syncing Complete!"
+
+-- Stop the stopwatch
+set stopwatchStop to current date
+-- Subtract the two dates
+set runtimeSeconds to (stopwatchStop - stopwatchStart)
+
+display notification "OmniFocus is finished syncing to Calendar, took " & runtimeSeconds & " seconds" with title "Syncing Complete!"
