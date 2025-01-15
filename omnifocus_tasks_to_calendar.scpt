@@ -28,7 +28,7 @@ display notification "OmniFocus is now syncing to Calendar" with title "Syncing.
 
 -- Restart the Calendar app
 tell application "Calendar" to quit
-delay 2
+delay 1
 tell application "Calendar" to activate
 
 -- Create global variables
