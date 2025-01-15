@@ -26,10 +26,13 @@ set stopwatchStart to current date
 -- Let the user know that the script has started
 display notification "OmniFocus is now syncing to Calendar" with title "Syncing..."
 
--- Restart the Calendar app
+-- Restart the Calendar app minimized
 tell application "Calendar" to quit
 delay 1
-tell application "Calendar" to activate
+tell application "Calendar"
+	activate
+	set miniaturized of every window to true
+end tell
 
 -- Create global variables
 set calendar_element to missing value  --initialize to null
