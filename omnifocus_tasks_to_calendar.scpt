@@ -26,6 +26,11 @@ set stopwatchStart to current date
 -- Let the user know that the script has started
 display notification "OmniFocus is now syncing to Calendar" with title "Syncing..."
 
+-- Restart the Calendar app
+tell application "Calendar" to quit
+delay 1
+tell application "Calendar" to activate
+
 -- Create global variables
 set calendar_element to missing value  --initialize to null
 set numOfDaysToInclude to 7  --includes today
