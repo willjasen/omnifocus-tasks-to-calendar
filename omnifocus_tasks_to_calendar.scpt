@@ -31,12 +31,13 @@ tell application "Calendar" to quit
 delay 1
 tell application "Calendar"
 	activate
+	delay 1
 	set miniaturized of every window to true
 end tell
 
 -- Create global variables
 set calendar_element to missing value  --initialize to null
-set numOfDaysToInclude to 7  --includes today
+set numOfDaysToInclude to 14  --includes today
 property default_duration : 30  --in minutes
 
 -- for the days to pull tasks from, set the start date to today's date at the prior midnight
