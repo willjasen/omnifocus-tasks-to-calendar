@@ -20,7 +20,7 @@
 --  SCRIPT  --
 -- ******** --
 
-property default_duration : 30  --in minutes
+property default_event_duration : 30  --in minutes
 
 on run {numOfDaysToInclude}
 
@@ -165,7 +165,7 @@ on processOmniFocusSharedTasks(tags_to_sync,calendar_name)
 					set task_url to "omnifocus:///task/" & id of the_task
 					set is_flagged to flagged of the_task
 					if task_estimate is missing value then
-						set task_estimate to default_duration
+						set task_estimate to default_event_duration
 					end if
 
 					-- BUILD CALENDAR DATE
@@ -249,7 +249,7 @@ on processOmniFocusMyTasks(tags_to_ignore,calendar_name)
 					set task_url to "omnifocus:///task/" & id of the_task
 					set is_flagged to flagged of the_task
 					if task_estimate is missing value then
-						set task_estimate to default_duration
+						set task_estimate to default_event_duration
 					end if
 
 					-- BUILD CALENDAR DATE
