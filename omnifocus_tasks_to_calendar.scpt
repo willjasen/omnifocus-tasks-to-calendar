@@ -103,6 +103,13 @@ on run argv
 end run
 
 --
+-- HANDLER :: CREATE A CALENDAR EVENT FROM A TASK --
+--
+on createCalendarEvent(a_task)
+
+end createCalendarEvent
+
+--
 -- HANDLER :: DELETE ALL CALENDAR EVENTS ON A GIVEN CALENDAR --
 --
 on deleteCalendarEvents(calendar_name)
