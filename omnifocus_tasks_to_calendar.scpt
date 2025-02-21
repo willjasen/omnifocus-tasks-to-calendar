@@ -33,6 +33,18 @@ on run argv
 
 	-- Create global variables
 	set calendar_element to missing value  --initialize to null
+	
+	-- for the days to pull tasks from, set the start date to today's date at the prior midnight
+	set theStartDate to current date
+	set hours of theStartDate to 0
+	set minutes of theStartDate to 0
+	set seconds of theStartDate to 0
+
+	-- for the days to pull tasks from, set the end date to today's date plus how many days to look forward
+	set theEndDate to current date + (days * (numOfDaysToInclude - 1))
+	set hours of theEndDate to 23
+	set minutes of theEndDate to 59
+	set seconds of theEndDate to 59
 
 	-- Start a stopwatch
 	set stopwatchStart to current date
@@ -54,29 +66,15 @@ on run argv
 		end tell
 	end if
 
-	-- for the days to pull tasks from, set the start date to today's date at the prior midnight
-	set theStartDate to current date
-	set hours of theStartDate to 0
-	set minutes of theStartDate to 0
-	set seconds of theStartDate to 0
-
-	-- for the days to pull tasks from, set the end date to today's date plus how many days to look forward
-	set theEndDate to current date + (days * (numOfDaysToInclude - 1))
-	set hours of theEndDate to 23
-	set minutes of theEndDate to 59
-	set seconds of theEndDate to 59
-
 	-- ********************************* --
 	-- CALL THE HANDLERS WITH PARAMETERS --
 	-- ********************************* --
-
 
 	-- Delete all events from the affected calendars
 	deleteCalendarEvents("OmniFocus")
 	deleteCalendarEvents("OmniFocus - 👦🏻 Tyler")
 	deleteCalendarEvents("OmniFocus - 👩🏻 Mom")
 	deleteCalendarEvents("OmniFocus - 👨🏼 Nathaniel")
-
 
 	-- Sync all of the calendars
 	set tagsToSync to {"👦🏻 Tyler"}
@@ -90,7 +88,6 @@ on run argv
 
 	set tagsToIgnore to {"👦🏻 Tyler","👩🏻 Mom","👨🏼 Nathaniel","👦🏼 Isaac","🧑🏻‍🦰 Carter"}
 	processOmniFocusTasks(tagsToIgnore,"exclude","OmniFocus")
-
 
 	-- Stop the stopwatch
 	set stopwatchStop to current date
