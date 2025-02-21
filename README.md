@@ -13,8 +13,8 @@ Using the .plist, a launchd user agent can be created to run the script in the b
 
 ### Screenshots
 
-Calendar week view
+Calendar week view\
 ![Calendar week view](/assets/img/calendar-week-view.png)
 
-Calendar event
+Calendar event\
 ![Calendar event](/assets/img/calendar-event.png)
