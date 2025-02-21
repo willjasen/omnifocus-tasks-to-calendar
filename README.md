@@ -1,6 +1,8 @@
 # omnifocus-tasks-to-calendar
 Create events in macOS calendar from OmniFocus tasks
 
+---
+
 ### Key Points
 
 - Create macOS Calendar events from OmniFocus tasks that are due today/soon
