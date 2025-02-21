@@ -167,11 +167,25 @@ on processOmniFocusTasks(tags_considered,include_or_exclude,calendar_name)
 					set task_due to due date of the_task
 					set task_name to name of the_task
 					set task_note to note of the_task
-					set task_project to name of containing project of the_task
+					-- Check if the task has a project assigned
+					try
+						set task_project to name of containing project of the_task
+						set has_project to true
+					on error
+						set has_project to false
+					end try
 					if task_note is missing value or task_note is "" then
-						set full_task_note to "Project: " & task_project
+						if has_project then
+							set full_task_note to "Project: " & task_project
+						else
+							set full_task_note to ""
+						end if
 					else
-						set full_task_note to "Project: " & task_project & return & task_note
+						if has_project then
+							set full_task_note to "Project: " & task_project & return & task_note
+						else
+							set full_task_note to task_note
+						end if
 					end if
 					set task_estimate to estimated minutes of the_task
 					set task_url to "omnifocus:///task/" & id of the_task
