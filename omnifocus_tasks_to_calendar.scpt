@@ -112,6 +112,12 @@ on processOmniFocusSharedTasks(tags_to_sync,calendar_name)
 					set task_due to due date of the_task
 					set task_name to name of the_task
 					set task_note to note of the_task
+					set task_project to name of containing project of the_task
+					if task_note is missing value or task_note is "" then
+						set full_task_note to "Project: " & task_project
+					else
+						set full_task_note to "Project: " & task_project & return & task_note
+					end if
 					set task_estimate to estimated minutes of the_task
 					set task_url to "omnifocus:///task/" & id of the_task
 					set is_flagged to flagged of the_task
@@ -127,7 +133,7 @@ on processOmniFocusSharedTasks(tags_to_sync,calendar_name)
 					tell application "Calendar"
 						set calendar_element to calendar calendar_name
 						tell calendar_element							
-							set newEvent to make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element
+							set newEvent to make new event with properties {summary:task_name, description:full_task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element
 						end tell
 						if is_flagged then
 							tell newEvent
@@ -190,6 +196,12 @@ on processOmniFocusMyTasks(tags_to_ignore,calendar_name)
 					set task_due to due date of the_task
 					set task_name to name of the_task
 					set task_note to note of the_task
+					set task_project to name of containing project of the_task
+					if task_note is missing value or task_note is "" then
+						set full_task_note to "Project: " & task_project
+					else
+						set full_task_note to "Project: " & task_project & return & task_note
+					end if
 					set task_estimate to estimated minutes of the_task
 					set task_url to "omnifocus:///task/" & id of the_task
 					set is_flagged to flagged of the_task
@@ -205,7 +217,7 @@ on processOmniFocusMyTasks(tags_to_ignore,calendar_name)
 					tell application "Calendar"
 						set calendar_element to calendar calendar_name
 						tell calendar_element
-							 set newEvent to make new event with properties {summary:task_name, description:task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element
+							 set newEvent to make new event with properties {summary:task_name, description:full_task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element
 						end tell
 						if is_flagged then
 							tell newEvent
