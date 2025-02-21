@@ -14,6 +14,7 @@
 -- -- -- shared tags no longer need to be the primary tag in the task (2024-08-19)
 -- -- -- refactored script to use handlers (2024-08-19)
 -- -- -- make the calendar alert align with task's due date
+-- -- -- refactor the script for only one processing tasks handler (2025-02-20)
 
 
 -- ******** --
@@ -33,7 +34,7 @@ on run argv
 
 	-- Create global variables
 	set calendar_element to missing value  --initialize to null
-	
+
 	-- for the days to pull tasks from, set the start date to today's date at the prior midnight
 	set theStartDate to current date
 	set hours of theStartDate to 0
