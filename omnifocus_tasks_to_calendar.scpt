@@ -22,15 +22,17 @@
 
 property default_event_duration : 30  --in minutes
 
-on run {numOfDaysToInclude}
+on run argv
+
+	-- Set numOfDaysToInclude to 1 if not passed in
+	if (count of argv) > 0 then
+		set numOfDaysToInclude to item 1 of argv as integer
+	else
+		set numOfDaysToInclude to 1
+	end if
 
 	-- Create global variables
 	set calendar_element to missing value  --initialize to null
-	
-	-- Set numOfDaysToInclude to 1 if not passed in
-	if numOfDaysToInclude is missing value then
-		set numOfDaysToInclude to 1
-	end if
 
 	-- Start a stopwatch
 	set stopwatchStart to current date
