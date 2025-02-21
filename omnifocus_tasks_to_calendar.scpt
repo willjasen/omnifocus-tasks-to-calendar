@@ -96,7 +96,6 @@ on run argv
 	set stopwatchStop to current date
 	-- Subtract the two dates
 	set runtimeSeconds to (stopwatchStop - stopwatchStart)
-
 	-- Let the user know that the script has finished
 	display notification "OmniFocus is finished syncing to Calendar, took " & runtimeSeconds & " seconds" with title "Syncing Complete!"
 
@@ -104,8 +103,9 @@ end run
 
 --
 -- HANDLER :: CREATE A CALENDAR EVENT FROM A TASK --
+-- ** IN PROGRESS **
 --
-on createCalendarEvent(a_task)
+createCalendarEvent()
 
 end createCalendarEvent
 
