@@ -10,3 +10,11 @@ Create events in macOS calendar from OmniFocus tasks
 - A notification is displayed when the script starts and when the script ends, including info about runtime
 
 Using the .plist, a launchd user agent can be created to run the script in the background every so often
+
+### Screenshots
+
+Calendar week view
+![Calendar week view](/assets/img/calendar-week-view.png)
+
+Calendar event
+![Calendar event](/assets/img/calendar-event.png)
