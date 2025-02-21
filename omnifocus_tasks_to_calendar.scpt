@@ -24,6 +24,14 @@ property default_duration : 30  --in minutes
 
 on run {numOfDaysToInclude}
 
+	-- Create global variables
+	set calendar_element to missing value  --initialize to null
+	
+	-- Set numOfDaysToInclude to 1 if not passed in
+	if numOfDaysToInclude is missing value then
+		set numOfDaysToInclude to 1
+	end if
+
 	-- Start a stopwatch
 	set stopwatchStart to current date
 
@@ -43,10 +51,6 @@ on run {numOfDaysToInclude}
 			set miniaturized of every window to true
 		end tell
 	end if
-
-	-- Create global variables
-	set calendar_element to missing value  --initialize to null
-	-- set numOfDaysToInclude to 7  --includes today
 
 	-- for the days to pull tasks from, set the start date to today's date at the prior midnight
 	set theStartDate to current date
