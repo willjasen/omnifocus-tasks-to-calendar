@@ -28,7 +28,7 @@ Task details that are synced to the calendar:
 
 The only thing I'm positive it can't do is to take a task's attachments and attach them to the calendar event's attachment section, as AppleScript doesn't provide a way to do that. In the event that an attachment is in a note (like for a picture, where it's included inline), it is ignored.
 
-Tasks get synced based on the tags it has, which can either be included or excluded. The distinction that I generally use is that tasks as related to family that should sync to their shared calendar use the "include" parameter so that only tasks with their tag(s) are synced, whereas with my own calendar, I use the "exclude" parameter along with all of their tags so that any task related to them does not duplicated onto my own calendar.
+Tasks get synced based on the tags it has, which can either be included or excluded. The distinction that I generally use is that tasks as related to family that should sync to their shared calendar use the "include" parameter so that only tasks with their tag(s) are synced, whereas with my own calendar, I use the "exclude" parameter along with all of their tags so that any task related to them does not get duplicated onto my own calendar.
 
 ---
 
