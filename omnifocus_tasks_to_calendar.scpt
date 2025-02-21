@@ -20,42 +20,81 @@
 --  SCRIPT  --
 -- ******** --
 
--- Start a stopwatch
-set stopwatchStart to current date
-
--- Let the user know that the script has started
-display notification "OmniFocus is now syncing to Calendar" with title "Syncing..."
-
--- Check if the current time is 4 am
-set currentHour to hours of (current date)
-if currentHour is not 4 then
-	-- do nothing --
-else
-	-- Restart the Calendar app minimized
-	tell application "Calendar" to quit
-	delay 1
-	tell application "Calendar"
-		activate
-		set miniaturized of every window to true
-	end tell
-end if
-
--- Create global variables
-set calendar_element to missing value  --initialize to null
-set numOfDaysToInclude to 7  --includes today
 property default_duration : 30  --in minutes
 
--- for the days to pull tasks from, set the start date to today's date at the prior midnight
-set theStartDate to current date
-set hours of theStartDate to 0
-set minutes of theStartDate to 0
-set seconds of theStartDate to 0
+on run {numOfDaysToInclude}
 
--- for the days to pull tasks from, set the end date to today's date plus how many days to look forward
-set theEndDate to current date + (days * (numOfDaysToInclude - 1))
-set hours of theEndDate to 23
-set minutes of theEndDate to 59
-set seconds of theEndDate to 59
+	-- Start a stopwatch
+	set stopwatchStart to current date
+
+	-- Let the user know that the script has started
+	display notification "OmniFocus is now syncing to Calendar" with title "Syncing..."
+
+	-- Check if the current time is 4 am
+	set currentHour to hours of (current date)
+	if currentHour is not 4 then
+		-- do nothing --
+	else
+		-- Restart the Calendar app minimized
+		tell application "Calendar" to quit
+		delay 1
+		tell application "Calendar"
+			activate
+			set miniaturized of every window to true
+		end tell
+	end if
+
+	-- Create global variables
+	set calendar_element to missing value  --initialize to null
+	-- set numOfDaysToInclude to 7  --includes today
+
+	-- for the days to pull tasks from, set the start date to today's date at the prior midnight
+	set theStartDate to current date
+	set hours of theStartDate to 0
+	set minutes of theStartDate to 0
+	set seconds of theStartDate to 0
+
+	-- for the days to pull tasks from, set the end date to today's date plus how many days to look forward
+	set theEndDate to current date + (days * (numOfDaysToInclude - 1))
+	set hours of theEndDate to 23
+	set minutes of theEndDate to 59
+	set seconds of theEndDate to 59
+
+	-- ********************************* --
+	-- CALL THE HANDLERS WITH PARAMETERS --
+	-- ********************************* --
+
+
+	-- Delete all events from the affected calendars
+	deleteCalendarEvents("OmniFocus")
+	deleteCalendarEvents("OmniFocus - 👦🏻 Tyler")
+	deleteCalendarEvents("OmniFocus - 👩🏻 Mom")
+	deleteCalendarEvents("OmniFocus - 👨🏼 Nathaniel")
+
+
+	-- Sync all of the calendars
+	set tagsToSync to {"👦🏻 Tyler"}
+	processOmniFocusSharedTasks(tagsToSync,"OmniFocus - 👦🏻 Tyler")
+
+	set tagsToSync to {"👩🏻 Mom","👦🏼 Isaac","🧑🏻‍🦰 Carter"}
+	processOmniFocusSharedTasks(tagsToSync,"OmniFocus - 👩🏻 Mom")
+
+	set tagsToSync to {"👨🏼 Nathaniel","👦🏼 Isaac","🧑🏻‍🦰 Carter"}
+	processOmniFocusSharedTasks(tagsToSync,"OmniFocus - 👨🏼 Nathaniel")
+
+	set tagsToIgnore to {"👦🏻 Tyler","👩🏻 Mom","👨🏼 Nathaniel","👦🏼 Isaac","🧑🏻‍🦰 Carter"}
+	processOmniFocusMyTasks(tagsToIgnore,"OmniFocus")
+
+
+	-- Stop the stopwatch
+	set stopwatchStop to current date
+	-- Subtract the two dates
+	set runtimeSeconds to (stopwatchStop - stopwatchStart)
+
+	-- Let the user know that the script has finished
+	display notification "OmniFocus is finished syncing to Calendar, took " & runtimeSeconds & " seconds" with title "Syncing Complete!"
+
+end run
 
 --
 -- HANDLER :: DELETE ALL CALENDAR EVENTS ON A GIVEN CALENDAR --
@@ -234,38 +273,3 @@ on processOmniFocusMyTasks(tags_to_ignore,calendar_name)
 	end tell
 
 end processOmniFocusMyTasks
-
-
--- ********************************* --
--- CALL THE HANDLERS WITH PARAMETERS --
--- ********************************* --
-
-
--- Delete all events from the affected calendars
-deleteCalendarEvents("OmniFocus")
-deleteCalendarEvents("OmniFocus - 👦🏻 Tyler")
-deleteCalendarEvents("OmniFocus - 👩🏻 Mom")
-deleteCalendarEvents("OmniFocus - 👨🏼 Nathaniel")
-
-
--- Sync all of the calendars
-set tagsToSync to {"👦🏻 Tyler"}
-processOmniFocusSharedTasks(tagsToSync,"OmniFocus - 👦🏻 Tyler")
-
-set tagsToSync to {"👩🏻 Mom","👦🏼 Isaac","🧑🏻‍🦰 Carter"}
-processOmniFocusSharedTasks(tagsToSync,"OmniFocus - 👩🏻 Mom")
-
-set tagsToSync to {"👨🏼 Nathaniel","👦🏼 Isaac","🧑🏻‍🦰 Carter"}
-processOmniFocusSharedTasks(tagsToSync,"OmniFocus - 👨🏼 Nathaniel")
-
-set tagsToIgnore to {"👦🏻 Tyler","👩🏻 Mom","👨🏼 Nathaniel","👦🏼 Isaac","🧑🏻‍🦰 Carter"}
-processOmniFocusMyTasks(tagsToIgnore,"OmniFocus")
-
-
--- Stop the stopwatch
-set stopwatchStop to current date
--- Subtract the two dates
-set runtimeSeconds to (stopwatchStop - stopwatchStart)
-
--- Let the user know that the script has finished
-display notification "OmniFocus is finished syncing to Calendar, took " & runtimeSeconds & " seconds" with title "Syncing Complete!"
