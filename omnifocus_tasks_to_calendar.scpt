@@ -105,7 +105,7 @@ end run
 -- HANDLER :: CREATE A CALENDAR EVENT FROM A TASK --
 -- ** IN PROGRESS **
 --
-createCalendarEvent()
+on createCalendarEvent()
 
 end createCalendarEvent
 
