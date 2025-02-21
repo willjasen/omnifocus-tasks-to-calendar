@@ -11,6 +11,8 @@ Create events in macOS calendar from OmniFocus tasks
 
 Using the .plist, a launchd user agent can be created to run the script in the background every so often
 
+---
+
 ### Screenshots
 
 Calendar week view\
