@@ -180,7 +180,7 @@ on processOmniFocusTasks(tags_considered,include_or_exclude,calendar_name)
 						end if
 					else
 						if has_project then
-							set full_task_note to "Project: " & task_project & return & task_note
+							set full_task_note to "Project: " & task_project & return & "----------------------------------------" & return & task_note
 						else
 							set full_task_note to task_note
 						end if
