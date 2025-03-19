@@ -36,7 +36,7 @@ on run argv
 	set calendar_element to missing value  --initialize to null
 
 	-- for the days to pull tasks from, set the start date to today's date at the prior midnight
-	set theStartDate to current date
+	set theStartDate to current date - (days * 30)
 	set hours of theStartDate to 0
 	set minutes of theStartDate to 0
 	set seconds of theStartDate to 0
