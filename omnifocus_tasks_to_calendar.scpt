@@ -25,24 +25,26 @@ property default_event_duration : 30  --in minutes
 
 on run argv
 
-	-- Set numOfDaysToInclude to 1 if not passed in
+	-- Set daysAhead to 1 if not passed in
 	if (count of argv) > 0 then
-		set numOfDaysToInclude to item 1 of argv as integer
+		set daysAhead to item 1 of argv as integer
+		set daysBack to item 2 of argv as integer
 	else
-		set numOfDaysToInclude to 1
+		set daysAhead to 1
+		set daysBack to 1
 	end if
 
 	-- Create global variables
 	set calendar_element to missing value  --initialize to null
 
 	-- for the days to pull tasks from, set the start date to today's date at the prior midnight
-	set theStartDate to current date - (days * 30)
+	set theStartDate to current date - (days * daysBack)
 	set hours of theStartDate to 0
 	set minutes of theStartDate to 0
 	set seconds of theStartDate to 0
 
 	-- for the days to pull tasks from, set the end date to today's date plus how many days to look forward
-	set theEndDate to current date + (days * (numOfDaysToInclude - 1))
+	set theEndDate to current date + (days * (daysAhead - 1))
 	set hours of theEndDate to 23
 	set minutes of theEndDate to 59
 	set seconds of theEndDate to 59
