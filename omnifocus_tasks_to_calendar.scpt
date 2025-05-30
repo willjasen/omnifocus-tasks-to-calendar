@@ -57,9 +57,9 @@ on run argv
 
 	-- Check if the current time is 4 am
 	set currentHour to hours of (current date)
-	if currentHour is not 4 then
+	-- if currentHour is not 4 then
 		-- do nothing --
-	else
+	-- else
 		-- Restart the Calendar app minimized
 		tell application "Calendar" to quit
 		delay 1
@@ -67,7 +67,7 @@ on run argv
 			activate
 			set miniaturized of every window to true
 		end tell
-	end if
+	-- end if
 
 	-- ********************************* --
 	-- CALL THE HANDLERS WITH PARAMETERS --
