@@ -15,6 +15,15 @@
 -- -- -- refactored script to use handlers (2024-08-19)
 -- -- -- make the calendar alert align with task's due date
 -- -- -- refactor the script for only one processing tasks handler (2025-02-20)
+-- -- -- add back to make the calendar app minimized when the script runs (2025-05-30)
+-- -- -- added how to run the script via Usage comments (2025-05-30)
+
+
+-- ** USAGE ** --
+-- This script can be run from the command line with two optional parameters:
+-- 1. The number of days to look ahead (default is 1)
+-- 2. The number of days to look back (default is 1)
+-- Example: `osascript omnifocus_tasks_to_calendar.scpt 30 7`
 
 
 -- ******** --
@@ -26,6 +35,7 @@ property default_event_duration : 30  --in minutes
 on run argv
 
 	-- Set daysAhead to 1 if not passed in
+	-- Set daysBack to 1 if not passed in
 	if (count of argv) > 0 then
 		set daysAhead to item 1 of argv as integer
 		set daysBack to item 2 of argv as integer

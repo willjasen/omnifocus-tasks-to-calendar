@@ -14,6 +14,16 @@ Create events in macOS calendar from OmniFocus tasks
 
 ---
 
+### Usage
+
+This script can be run from the command line with two optional parameters:
+1. The number of days to look ahead (default is 1)
+2. The number of days to look back (default is 1)
+
+Example: `osascript omnifocus_tasks_to_calendar.scpt 30 7`
+
+---
+
 ### Overview
 
 For the sake of making things more complicated than it has to be, the calendars that are synced to are deleted each time the script runs, thus requiring an individual calendar(s) specifically for it. DO NOT USE A PRIMARY CALENDAR! It was a lot easier to tell a calendar to delete all of its events than compare existing events and update them when needed. In accordance with the runtime of the script, my Mac mini M4 does a week's worth of tasks to calendar events in about 30 seconds, while my 2019 Intel MacBook Pro can take 3 to 4 times longer (but I don't sync from it anymore).
