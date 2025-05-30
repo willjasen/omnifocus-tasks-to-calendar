@@ -15,6 +15,15 @@
 -- -- -- refactored script to use handlers (2024-08-19)
 -- -- -- make the calendar alert align with task's due date
 -- -- -- refactor the script for only one processing tasks handler (2025-02-20)
+-- -- -- add back to make the calendar app minimized when the script runs (2025-05-30)
+-- -- -- added how to run the script via Usage comments (2025-05-30)
+
+
+-- ** USAGE ** --
+-- This script can be run from the command line with two optional parameters:
+-- 1. The number of days to look ahead (default is 1)
+-- 2. The number of days to look back (default is 1)
+-- Example: `osascript omnifocus_tasks_to_calendar.scpt 30 7`
 
 
 -- ******** --
@@ -25,24 +34,27 @@ property default_event_duration : 30  --in minutes
 
 on run argv
 
-	-- Set numOfDaysToInclude to 1 if not passed in
+	-- Set daysAhead to 1 if not passed in
+	-- Set daysBack to 1 if not passed in
 	if (count of argv) > 0 then
-		set numOfDaysToInclude to item 1 of argv as integer
+		set daysAhead to item 1 of argv as integer
+		set daysBack to item 2 of argv as integer
 	else
-		set numOfDaysToInclude to 1
+		set daysAhead to 1
+		set daysBack to 1
 	end if
 
 	-- Create global variables
 	set calendar_element to missing value  --initialize to null
 
 	-- for the days to pull tasks from, set the start date to today's date at the prior midnight
-	set theStartDate to current date
+	set theStartDate to current date - (days * daysBack)
 	set hours of theStartDate to 0
 	set minutes of theStartDate to 0
 	set seconds of theStartDate to 0
 
 	-- for the days to pull tasks from, set the end date to today's date plus how many days to look forward
-	set theEndDate to current date + (days * (numOfDaysToInclude - 1))
+	set theEndDate to current date + (days * (daysAhead - 1))
 	set hours of theEndDate to 23
 	set minutes of theEndDate to 59
 	set seconds of theEndDate to 59
@@ -55,9 +67,9 @@ on run argv
 
 	-- Check if the current time is 4 am
 	set currentHour to hours of (current date)
-	if currentHour is not 4 then
+	-- if currentHour is not 4 then
 		-- do nothing --
-	else
+	-- else
 		-- Restart the Calendar app minimized
 		tell application "Calendar" to quit
 		delay 1
@@ -65,7 +77,7 @@ on run argv
 			activate
 			set miniaturized of every window to true
 		end tell
-	end if
+	-- end if
 
 	-- ********************************* --
 	-- CALL THE HANDLERS WITH PARAMETERS --
