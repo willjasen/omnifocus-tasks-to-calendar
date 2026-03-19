@@ -19,6 +19,7 @@ Create events in macOS calendar from OmniFocus tasks
 This script can be run from the command line with two optional parameters:
 1. The number of days to look ahead (default is 1)
 2. The number of days to look back (default is 1)
+
 This means that, by default, the script will place tasks on the calendar from today and yesterday.
 
 Example: `osascript omnifocus_tasks_to_calendar.scpt 30 7`
