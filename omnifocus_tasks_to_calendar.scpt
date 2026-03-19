@@ -1,6 +1,7 @@
 -- ** OVERVIEW ** --
--- This code creates macOS Calendar events from OmniFocus tasks that are due today or in the future
--- In regards to runtime, all events on the specified calendars are deleted en masse and then recreated
+-- This code syncs macOS Calendar events from OmniFocus tasks that are due today or in the future
+-- Events are matched to tasks via their OmniFocus task ID (stored in the event URL), and only changed properties are updated
+-- New tasks get new events, completed/removed tasks have their events deleted, and unchanged tasks are left alone
 
 
 -- ** HISTORY ** --
@@ -19,6 +20,7 @@
 -- -- -- added how to run the script via Usage comments (2025-05-30)
 -- -- -- work with the "planned date" attribute (2026-01-26)
 -- -- -- filter tasks to exclude dropped tasks (2026-01-26)
+-- -- -- smart sync: match events by task ID instead of delete-all/recreate-all (2026-03-19)
 
 
 -- ** USAGE ** --
@@ -45,9 +47,6 @@ on run argv
 		set daysAhead to 1
 		set daysBack to 1
 	end if
-
-	-- Create global variables
-	set calendar_element to missing value  --initialize to null
 
 	-- for the days to pull tasks from, set the start date to today's date at the prior midnight
 	set theStartDate to current date - (days * daysBack)
@@ -78,12 +77,6 @@ on run argv
 	-- CALL THE HANDLERS WITH PARAMETERS --
 	-- ********************************* --
 
-	-- Delete all events from the affected calendars
-	deleteCalendarEvents("OmniFocus")
-	deleteCalendarEvents("OmniFocus - 👦🏻 Tyler")
-	deleteCalendarEvents("OmniFocus - 👩🏻 Mom")
-	deleteCalendarEvents("OmniFocus - 👨🏼 Nathaniel")
-
 	-- Sync all of the calendars
 	set tagsToSync to {"👦🏻 Tyler"}
 	processOmniFocusTasks(tagsToSync,"include","OmniFocus - 👦🏻 Tyler")
@@ -103,34 +96,27 @@ on run argv
 	set runtimeSeconds to (stopwatchStop - stopwatchStart)
 	-- Let the user know that the script has finished
 	display notification "OmniFocus is finished syncing to Calendar, took " & runtimeSeconds & " seconds" with title "Syncing Complete!"
+	log("The script has finished!")
 
 end run
 
 --
--- HANDLER :: DELETE ALL CALENDAR EVENTS ON A GIVEN CALENDAR --
---
-on deleteCalendarEvents(calendar_name)
-
-	global calendar_element
-  
-	tell application "Calendar"
-
-		set calendar_element to calendar calendar_name
-		delete (every event of calendar_element)
-
-	end tell
-
-end deleteCalendarEvents
-
---
--- HANDLER :: PROCESS OMNIFOCUS TASKS BASED ON TAGS TO INCLUDE/EXCLUDE --
+-- HANDLER :: SMART SYNC OMNIFOCUS TASKS TO CALENDAR EVENTS --
+-- Matches existing events by task URL, updates changed events, creates new ones, removes orphaned ones
 --
 on processOmniFocusTasks(tags_considered,include_or_exclude,calendar_name)
 
 	log("Processing tags to " & include_or_exclude & ": " & tags_considered)
 
-	global theStartDate, theEndDate, calendar_element
-	
+	global theStartDate, theEndDate
+
+	-- Get existing calendar events for smart sync
+	set matched_urls to {}
+	tell application "Calendar"
+		set calendar_element to calendar calendar_name
+		set existing_events to every event of calendar_element
+	end tell
+
 	tell application "OmniFocus"
 		tell default document
 
@@ -167,7 +153,7 @@ on processOmniFocusTasks(tags_considered,include_or_exclude,calendar_name)
 					end repeat
 				end if
 
-				-- If the task should be synced, then add it to the calendar
+				-- If the task should be synced, then sync it to the calendar
 				if task_should_sync then
 
 					set task_due to due date of the_task
@@ -214,25 +200,93 @@ on processOmniFocusTasks(tags_considered,include_or_exclude,calendar_name)
 
 					set start_date to end_date - (task_estimate * minutes)
 
-					-- CREATE CALENDAR EVENT
+					-- SMART SYNC: Find existing calendar event by task URL
+					set found_event to missing value
 					tell application "Calendar"
-						set calendar_element to calendar calendar_name
-						tell calendar_element							
-							set newEvent to make new event with properties {summary:task_name, description:full_task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element
-						end tell
-						if is_flagged then
-							tell newEvent
-								-- Set the alert to trigger at the due date (end_date)
-								make new display alarm at end with properties {trigger interval:task_estimate}
-							end tell
-						end if
+						repeat with evt in existing_events
+							try
+								if url of evt is task_url then
+									set found_event to contents of evt
+									exit repeat
+								end if
+							end try
+						end repeat
 					end tell
 
-				end if				
+					set end of matched_urls to task_url
+
+					if found_event is not missing value then
+						-- UPDATE existing event only if properties have changed
+						tell application "Calendar"
+							set needs_update to false
+
+							-- Compare core properties
+							if summary of found_event is not task_name then set needs_update to true
+							set evt_desc to description of found_event
+							if evt_desc is missing value then set evt_desc to ""
+							if evt_desc is not full_task_note then set needs_update to true
+							if start date of found_event is not start_date then set needs_update to true
+							if end date of found_event is not end_date then set needs_update to true
+
+							-- Compare alarm state
+							set has_alarm to (count of display alarms of found_event) > 0
+							if is_flagged and not has_alarm then set needs_update to true
+							if (not is_flagged) and has_alarm then set needs_update to true
+
+							if needs_update then
+								log("Updating event for task: " & task_name)
+								set summary of found_event to task_name
+								set description of found_event to full_task_note
+								set start date of found_event to start_date
+								set end date of found_event to end_date
+
+								-- Reset alarms
+								delete (every display alarm of found_event)
+								if is_flagged then
+									tell found_event
+										make new display alarm at end with properties {trigger interval:task_estimate}
+									end tell
+								end if
+							end if
+						end tell
+					else
+						-- CREATE new calendar event
+						log("Creating event for task: " & task_name)
+						tell application "Calendar"
+							tell calendar_element
+								set newEvent to make new event with properties {summary:task_name, description:full_task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element
+							end tell
+							if is_flagged then
+								tell newEvent
+									make new display alarm at end with properties {trigger interval:task_estimate}
+								end tell
+							end if
+						end tell
+					end if
+
+				end if
 
 			end repeat
 
 		end tell
 	end tell
 
+	-- CLEANUP: Delete orphaned events whose OmniFocus tasks are no longer active
+	tell application "Calendar"
+		set events_to_delete to {}
+		repeat with evt in existing_events
+			try
+				set evt_url to url of evt
+				if evt_url is not missing value and evt_url starts with "omnifocus:///task/" and evt_url is not in matched_urls then
+					set end of events_to_delete to contents of evt
+				end if
+			end try
+		end repeat
+		repeat with evt in events_to_delete
+			log("Deleting orphaned event: " & summary of evt)
+			delete evt
+		end repeat
+	end tell
+
 end processOmniFocusTasks
+
