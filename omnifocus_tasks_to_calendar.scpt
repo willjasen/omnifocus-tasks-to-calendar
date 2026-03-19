@@ -17,6 +17,8 @@
 -- -- -- refactor the script for only one processing tasks handler (2025-02-20)
 -- -- -- add back to make the calendar app minimized when the script runs (2025-05-30)
 -- -- -- added how to run the script via Usage comments (2025-05-30)
+-- -- -- work with the "planned date" attribute (2026-01-26)
+-- -- -- filter tasks to exclude dropped tasks (2026-01-26)
 
 
 -- ** USAGE ** --
