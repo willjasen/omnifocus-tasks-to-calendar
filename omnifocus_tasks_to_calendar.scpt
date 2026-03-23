@@ -40,6 +40,18 @@ on run argv
 
 	log("The script has started.")
 
+	-- Load sync configuration from external JSON file using JavaScript for Automation (JXA)
+	set scriptPath to do shell script "dirname " & quoted form of POSIX path of (path to me)
+	set jsonPath to scriptPath & "/data.json"
+	set jsonExists to do shell script "test -f " & quoted form of jsonPath & " && echo 'true' || echo 'false'"
+	if jsonExists is "false" then
+		log("data.json not found at " & jsonPath)
+		display notification "data.json not found. Please create it from data.example.json." with title "Sync Error"
+		return
+	end if
+	set jsonContent to do shell script "cat " & quoted form of jsonPath
+	set syncCount to (do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).length'") as integer
+
 	-- Set daysAhead to 1 if not passed in
 	-- Set daysBack to 1 if not passed in
 	if (count of argv) > 0 then
@@ -79,12 +91,7 @@ on run argv
 	-- CALL THE HANDLERS WITH PARAMETERS --
 	-- ********************************* --
 
-	-- Load sync configuration from external JSON file using JavaScript for Automation (JXA)
-	set scriptPath to do shell script "dirname " & quoted form of POSIX path of (path to me)
-	set jsonPath to scriptPath & "/data.json"
-	set jsonContent to do shell script "cat " & quoted form of jsonPath
-	set syncCount to (do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).length'") as integer
-
+	-- Loop through each sync configuration in the JSON and call the handler
 	repeat with i from 0 to syncCount - 1
 		set syncTags to paragraphs of (do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'var d=JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js)[" & i & "]; d.tags.join(\"\\n\")'")
 		set syncMode to do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js)[" & i & "].mode'"
