@@ -228,6 +228,7 @@ on processOmniFocusTasks(tags_considered,include_or_exclude,calendar_name)
 						-- UPDATE existing event only if properties have changed
 						tell application "Calendar"
 							set needs_update to false
+							set needs_alarm_recreate to false
 
 							-- Compare core properties
 							if summary of found_event is not task_name then set needs_update to true
@@ -239,10 +240,23 @@ on processOmniFocusTasks(tags_considered,include_or_exclude,calendar_name)
 
 							-- Compare alarm state
 							set has_alarm to (count of display alarms of found_event) > 0
-							if is_flagged and not has_alarm then set needs_update to true
-							if (not is_flagged) and has_alarm then set needs_update to true
+							if is_flagged and not has_alarm then
+								set needs_update to true
+							end if
+							if (not is_flagged) and has_alarm then
+								-- Alarm needs to be removed; Calendar.app cannot reliably delete alarms,
+								-- so we delete the event and recreate it without an alarm
+								set needs_alarm_recreate to true
+							end if
 
-							if needs_update then
+							if needs_alarm_recreate then
+								-- Delete and recreate: most reliable way to remove alarms
+								log("Recreating event (alarm removal) for task: " & task_name)
+								delete found_event
+								tell calendar_element
+									make new event with properties {summary:task_name, description:full_task_note, start date:task_start_date, end date:task_end_date, url:task_url} at calendar_element
+								end tell
+							else if needs_update then
 								log("Updating event for task: " & task_name)
 								set summary of found_event to task_name
 								set description of found_event to full_task_note
@@ -252,8 +266,7 @@ on processOmniFocusTasks(tags_considered,include_or_exclude,calendar_name)
 								set start date of found_event to task_start_date
 								set end date of found_event to task_end_date
 
-								-- Reset alarms
-								delete (every display alarm of found_event)
+								-- Add alarm if flagged
 								if is_flagged then
 									tell found_event
 										make new display alarm at end with properties {trigger interval:task_estimate}
