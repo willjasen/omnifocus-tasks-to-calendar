@@ -38,6 +38,8 @@ property default_event_duration : 30  --in minutes
 
 on run argv
 
+	log("The script has started.")
+
 	-- Set daysAhead to 1 if not passed in
 	-- Set daysBack to 1 if not passed in
 	if (count of argv) > 0 then
@@ -96,7 +98,7 @@ on run argv
 	set runtimeSeconds to (stopwatchStop - stopwatchStart)
 	-- Let the user know that the script has finished
 	display notification "OmniFocus is finished syncing to Calendar, took " & runtimeSeconds & " seconds" with title "Syncing Complete!"
-	log("The script has finished!")
+	log("The script has finished. Runtime: " & runtimeSeconds & " seconds.")
 
 end run
 
