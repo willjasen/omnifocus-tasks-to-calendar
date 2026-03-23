@@ -9,7 +9,7 @@
 -- -- -- Modified from a script by unlocked2412
 -- -- -- If an estimated time is not set then the task defaults to 30 minutes in length
 -- -- willjasen
--- -- -- changed "set start_date to start_date - (task_estimate * minutes)" to "set start_date to end_date - (task_estimate * minutes)"
+-- -- -- changed "set task_start_date to task_start_date - (task_estimate * minutes)" to "set task_start_date to task_end_date - (task_estimate * minutes)"
 -- -- -- changed so that only events from today forward are added to the calendar (decreases runtime)
 -- -- -- task notes are added into calendar event notes
 -- -- -- shared tags no longer need to be the primary tag in the task (2024-08-19)
@@ -189,24 +189,24 @@ on processOmniFocusTasks(tags_considered,include_or_exclude,calendar_name)
 						set task_estimate to default_event_duration
 					end if
 
-					-- Determine the event's end_date and start_date
+					-- Determine the event's task_end_date and task_start_date
 					if task_due is not missing value then
-						set end_date to task_due
+						set task_end_date to task_due
 					else if task_planned is not missing value then
-						set end_date to task_planned
+						set task_end_date to task_planned
 					else
 						-- Skip the task if neither due nor planned date is available
 						log("Skipping task '" & task_name & "' as it has no due or planned date.")
 						exit repeat
 					end if
 
-					set start_date to end_date - (task_estimate * minutes)
+					set task_start_date to task_end_date - (task_estimate * minutes)
 					
-					-- Safety check: ensure start_date is before end_date
+					-- Safety check: ensure task_start_date is before task_end_date
 					-- (handles edge cases like tasks at 11:50 PM where arithmetic might cause issues)
-					if start_date is greater than or equal to end_date then
+					if task_start_date is greater than or equal to task_end_date then
 						log("WARNING: Date calculation error for task '" & task_name & "' | Estimate: " & task_estimate & "m | Using fallback of 1 minute duration")
-						set start_date to end_date - (1 * minutes)
+						set task_start_date to task_end_date - (1 * minutes)
 					end if
 
 					-- SMART SYNC: Find existing calendar event by task URL
@@ -234,8 +234,8 @@ on processOmniFocusTasks(tags_considered,include_or_exclude,calendar_name)
 							set evt_desc to description of found_event
 							if evt_desc is missing value then set evt_desc to ""
 							if evt_desc is not full_task_note then set needs_update to true
-							if start date of found_event is not start_date then set needs_update to true
-							if end date of found_event is not end_date then set needs_update to true
+							if start date of found_event is not task_start_date then set needs_update to true
+							if end date of found_event is not task_end_date then set needs_update to true
 
 							-- Compare alarm state
 							set has_alarm to (count of display alarms of found_event) > 0
@@ -248,9 +248,9 @@ on processOmniFocusTasks(tags_considered,include_or_exclude,calendar_name)
 								set description of found_event to full_task_note
 								-- Set dates safely: push end date far out first to avoid
 								-- "start date must be before end date" conflict during update
-								set end date of found_event to end_date + (1 * days)
-								set start date of found_event to start_date
-								set end date of found_event to end_date
+								set end date of found_event to task_end_date + (1 * days)
+								set start date of found_event to task_start_date
+								set end date of found_event to task_end_date
 
 								-- Reset alarms
 								delete (every display alarm of found_event)
@@ -266,7 +266,7 @@ on processOmniFocusTasks(tags_considered,include_or_exclude,calendar_name)
 						log("Creating event for task: " & task_name)
 						tell application "Calendar"
 							tell calendar_element
-								set newEvent to make new event with properties {summary:task_name, description:full_task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element
+								set newEvent to make new event with properties {summary:task_name, description:full_task_note, start date:task_start_date, end date:task_end_date, url:task_url} at calendar_element
 							end tell
 							if is_flagged then
 								tell newEvent
