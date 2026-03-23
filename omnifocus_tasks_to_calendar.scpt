@@ -79,18 +79,18 @@ on run argv
 	-- CALL THE HANDLERS WITH PARAMETERS --
 	-- ********************************* --
 
-	-- Sync all of the calendars
-	set tagsToSync to {"👦🏻 Tyler"}
-	processOmniFocusTasks(tagsToSync,"include","OmniFocus - 👦🏻 Tyler")
+	-- Load sync configuration from external JSON file using JavaScript for Automation (JXA)
+	set scriptPath to do shell script "dirname " & quoted form of POSIX path of (path to me)
+	set jsonPath to scriptPath & "/data.json"
+	set jsonContent to do shell script "cat " & quoted form of jsonPath
+	set syncCount to (do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).length'") as integer
 
-	set tagsToSync to {"👩🏻 Mom","👦🏼 Isaac","🧑🏻‍🦰 Carter"}
-	processOmniFocusTasks(tagsToSync,"include","OmniFocus - 👩🏻 Mom")
-
-	set tagsToSync to {"👨🏼 Nathaniel","👦🏼 Isaac","🧑🏻‍🦰 Carter"}
-	processOmniFocusTasks(tagsToSync,"include","OmniFocus - 👨🏼 Nathaniel")
-
-	set tagsToIgnore to {"👦🏻 Tyler","👩🏻 Mom","👨🏼 Nathaniel","👦🏼 Isaac","🧑🏻‍🦰 Carter"}
-	processOmniFocusTasks(tagsToIgnore,"exclude","OmniFocus")
+	repeat with i from 0 to syncCount - 1
+		set syncTags to paragraphs of (do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'var d=JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js)[" & i & "]; d.tags.join(\"\\n\")'")
+		set syncMode to do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js)[" & i & "].mode'"
+		set syncCalendar to do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js)[" & i & "].calendar'"
+		processOmniFocusTasks(syncTags, syncMode, syncCalendar)
+	end repeat
 
 	-- Stop the stopwatch
 	set stopwatchStop to current date
