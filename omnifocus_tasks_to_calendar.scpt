@@ -50,7 +50,7 @@ on run argv
 		return
 	end if
 	set jsonContent to do shell script "cat " & quoted form of jsonPath
-	set syncCount to (do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).length'") as integer
+	set syncCount to (do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).data.length'") as integer
 
 	-- Set daysAhead to 1 if not passed in
 	-- Set daysBack to 1 if not passed in
@@ -93,9 +93,9 @@ on run argv
 
 	-- Loop through each sync configuration in the JSON and call the handler
 	repeat with i from 0 to syncCount - 1
-		set syncTags to paragraphs of (do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'var d=JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js)[" & i & "]; d.tags.join(\"\\n\")'")
-		set syncMode to do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js)[" & i & "].mode'"
-		set syncCalendar to do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js)[" & i & "].calendar'"
+		set syncTags to paragraphs of (do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'var d=JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).data[" & i & "]; d.tags.join(\"\\n\")'")
+		set syncMode to do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).data[" & i & "].mode'"
+		set syncCalendar to do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).data[" & i & "].calendar'"
 		processOmniFocusTasks(syncTags, syncMode, syncCalendar)
 	end repeat
 

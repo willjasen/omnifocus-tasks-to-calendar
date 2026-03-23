@@ -1,17 +1,20 @@
-[
-	{
-		"tags": ["🏷️ Tag A"],
-		"mode": "include",
-		"calendar": "OmniFocus - 🏷️ Tag A"
-	},
-	{
-		"tags": ["🏷️ Tag B", "🏷️ Tag C"],
-		"mode": "include",
-		"calendar": "OmniFocus - 🏷️ Tag B"
-	},
-	{
-		"tags": ["🏷️ Tag A", "🏷️ Tag B", "🏷️ Tag C"],
-		"mode": "exclude",
-		"calendar": "OmniFocus"
-	}
-]
+{
+	"version": "v2.0.0",
+	"data": [
+		{
+			"tags": ["🏷️ Tag A"],
+			"mode": "include",
+			"calendar": "OmniFocus - 🏷️ Tag A"
+		},
+		{
+			"tags": ["🏷️ Tag B", "🏷️ Tag C"],
+			"mode": "include",
+			"calendar": "OmniFocus - 🏷️ Tag B"
+		},
+		{
+			"tags": ["🏷️ Tag A", "🏷️ Tag B", "🏷️ Tag C"],
+			"mode": "exclude",
+			"calendar": "OmniFocus"
+		}
+	]
+}
