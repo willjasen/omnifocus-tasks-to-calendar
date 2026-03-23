@@ -35,6 +35,7 @@
 -- ******** --
 
 property default_event_duration : 30  --in minutes
+property expected_data_version : "v2.0.0"
 
 on run argv
 
@@ -50,6 +51,15 @@ on run argv
 		return
 	end if
 	set jsonContent to do shell script "cat " & quoted form of jsonPath
+
+	-- Validate data.json version matches this script's expected version
+	set dataVersion to do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'var j=JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js); j.version || \"\"'"
+	if dataVersion is not expected_data_version then
+		log("data.json version mismatch: expected " & expected_data_version & ", found " & dataVersion)
+		display notification "data.json version mismatch: expected " & expected_data_version & ", found " & dataVersion & ". Please update data.json using data.example.json." with title "Sync Error"
+		return
+	end if
+
 	set syncCount to (do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).data.length'") as integer
 
 	-- Set daysAhead to 1 if not passed in
