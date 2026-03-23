@@ -39,7 +39,7 @@ property expected_data_version : "v2.0.0"
 
 on run argv
 
-	log("The script has started.")
+	log("The script has started. Expected data.json version: " & expected_data_version)
 
 	-- Load sync configuration from external JSON file using JavaScript for Automation (JXA)
 	set scriptPath to do shell script "dirname " & quoted form of POSIX path of (path to me)
