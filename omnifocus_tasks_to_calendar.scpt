@@ -201,6 +201,13 @@ on processOmniFocusTasks(tags_considered,include_or_exclude,calendar_name)
 					end if
 
 					set start_date to end_date - (task_estimate * minutes)
+					
+					-- Safety check: ensure start_date is before end_date
+					-- (handles edge cases like tasks at 11:50 PM where arithmetic might cause issues)
+					if start_date is greater than or equal to end_date then
+						log("WARNING: Date calculation error for task '" & task_name & "' | Estimate: " & task_estimate & "m | Using fallback of 1 minute duration")
+						set start_date to end_date - (1 * minutes)
+					end if
 
 					-- SMART SYNC: Find existing calendar event by task URL
 					set found_event to missing value
@@ -239,6 +246,9 @@ on processOmniFocusTasks(tags_considered,include_or_exclude,calendar_name)
 								log("Updating event for task: " & task_name)
 								set summary of found_event to task_name
 								set description of found_event to full_task_note
+								-- Set dates safely: push end date far out first to avoid
+								-- "start date must be before end date" conflict during update
+								set end date of found_event to end_date + (1 * days)
 								set start date of found_event to start_date
 								set end date of found_event to end_date
 
