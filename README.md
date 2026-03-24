@@ -39,7 +39,9 @@ This script can be run from the macOS command line: `osascript omnifocus_tasks_t
 
 ### Overview
 
-For the sake of making things more complicated than it has to be, the calendars that are synced to are deleted each time the script runs, thus requiring an individual calendar(s) specifically for it. DO NOT USE A PRIMARY CALENDAR! It was a lot easier to tell a calendar to delete all of its events than compare existing events and update them when needed. In accordance with the runtime of the script, my Mac mini M4 does a week's worth of tasks to calendar events in about 30 seconds, while my 2019 Intel MacBook Pro can take 3 to 4 times longer (but I don't sync from it anymore).
+Starting with v2.0.0, calendar events are created or updated based upon their respective tasks in OmniFocus (previously, all calendar events were deleted and then recreated). Even so, DO NOT USE A PRIMARY CALENDAR! A separate, dedicated calendar(s) should be used only with this script, as this script will delete events on the calendar in some circumstances.
+
+In accordance with the runtime of the script, my Mac mini M4 does a week's worth of tasks to calendar events in about 30 seconds, while my 2019 Intel MacBook Pro can take 3 to 4 times longer.
 
 Task details that are synced to the calendar:
 
