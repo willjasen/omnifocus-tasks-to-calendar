@@ -84,11 +84,11 @@ on run
 	set stopwatchStart to current date
 
 	-- Restart the Calendar app minimized
-	tell application "Calendar" to quit
-	delay 3
-	tell application "Calendar"
-		run  -- this starts the Calendar app but doesn't load its window
-	end tell
+	-- tell application "Calendar" to quit
+	-- delay 3
+	-- tell application "Calendar"
+	--	run  -- this starts the Calendar app but doesn't load its window
+	-- end tell
 
 	-- Let the user know that the script has started
 	display notification "OmniFocus is now syncing to Calendar" with title "Syncing..."
