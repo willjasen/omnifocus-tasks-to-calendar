@@ -14,14 +14,26 @@ Create events in macOS calendar from OmniFocus tasks
 
 ---
 
+### Configuration
+
+The script uses a `data.json` file for its configuration:
+
+- `version`: a version number of this configuration file that corresponds with a script version
+- `daysAhead`: the number of days to look ahead (the default example is 1)
+- `daysBack`: the number of days to look back (the default example is 1)
+- `data.tags`: the OmniFocus tags to work with
+- `data.mode`: the mode to work as with tags, either the word "include" or "exclude"
+- `data.calendar`: the calendar to work with
+
+In regards to the span of days being worked with in the default example, the script will place tasks on calendars from today and yesterday.
+
+Refer to `data.example.json` as to the structure of the script's configuration file.
+
+---
+
 ### Usage
 
-This script can be run from the command line with two optional parameters:
-1. The number of days to look ahead (default is 1)
-2. The number of days to look back (default is 1)
-This means that, by default, the script will place tasks on the calendar from today and yesterday.
-
-Example: `osascript omnifocus_tasks_to_calendar.scpt 30 7`
+This script can be run from the macOS command line: `osascript omnifocus_tasks_to_calendar.scpt`
 
 ---
 
