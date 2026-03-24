@@ -1,23 +1,23 @@
 -- ┌─────────────────────────────────────────────────────────────────────────────┐
--- │  OVERVIEW                                                                  │
+-- │  OVERVIEW                                                                   │
 -- ├─────────────────────────────────────────────────────────────────────────────┤
--- │  Syncs macOS Calendar events from OmniFocus tasks due today or later.      │
--- │  Events are matched to tasks via their OmniFocus task ID (stored in the    │
--- │  event URL), and only changed properties are updated. New tasks get new    │
--- │  events, completed/removed tasks have their events deleted, and unchanged  │
--- │  tasks are left alone.                                                     │
+-- │  Syncs macOS Calendar events from OmniFocus tasks due today or later.       │
+-- │  Events are matched to tasks via their OmniFocus task ID (stored in the     │
+-- │  event URL), and only changed properties are updated. New tasks get new     │
+-- │  events, completed/removed tasks have their events deleted, and unchanged   │
+-- │  tasks are left alone.                                                      │
 -- └─────────────────────────────────────────────────────────────────────────────┘
 
--- ┌─────────────────────────────────────────────────────────────────────────────┐
+-- ┌────────────────────────────────────────────────────────────────────────────┐
 -- │  HISTORY                                                                   │
--- ├─────────────────────────────────────────────────────────────────────────────┤
+-- ├────────────────────────────────────────────────────────────────────────────┤
 -- │                                                                            │
 -- │  Rosemary Orchard                                                          │
 -- │    · Modified from a script by unlocked2412                                │
 -- │    · Default to 30 min if no estimated time is set                         │
 -- │                                                                            │
 -- │  willjasen                                                                 │
--- │    · Fixed task_start_date calculation to use task_end_date                 │
+-- │    · Fixed task_start_date calculation to use task_end_date                │
 -- │    · Only add events from today forward (decreases runtime)                │
 -- │    · Copy task notes into calendar event notes                             │
 -- │    · Shared tags no longer need to be primary tag          (2024-08-19)    │
@@ -30,20 +30,20 @@
 -- │    · Exclude dropped tasks from sync                       (2026-01-26)    │
 -- │    · Smart sync: match events by task ID                   (2026-03-19)    │
 -- │                                                                            │
--- └─────────────────────────────────────────────────────────────────────────────┘
+-- └────────────────────────────────────────────────────────────────────────────┘
 
 -- ┌─────────────────────────────────────────────────────────────────────────────┐
--- │  USAGE                                                                     │
+-- │  USAGE                                                                      │
 -- ├─────────────────────────────────────────────────────────────────────────────┤
--- │  Run from the command line:                                                │
--- │    osascript omnifocus_tasks_to_calendar.scpt                              │
--- │                                                                            │
--- │  Days to look ahead/back are configured in data.json                       │
--- │  via the daysAhead and daysBack properties.                                │
+-- │  Run from the command line:                                                 │
+-- │    osascript omnifocus_tasks_to_calendar.scpt                               │
+-- │                                                                             │
+-- │  Days to look ahead/back are configured in data.json                        │
+-- │  via the daysAhead and daysBack properties.                                 │
 -- └─────────────────────────────────────────────────────────────────────────────┘
 
 -- ┌─────────────────────────────────────────────────────────────────────────────┐
--- │  SCRIPT                                                                    │
+-- │  SCRIPT                                                                     │
 -- └─────────────────────────────────────────────────────────────────────────────┘
 
 property default_event_duration : 30  --in minutes
