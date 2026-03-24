@@ -121,8 +121,6 @@ end run
 --
 on processOmniFocusTasks(tags_considered,include_or_exclude,calendar_name)
 
-	log("Processing tags to " & include_or_exclude & ": " & tags_considered)
-
 	global theStartDate, theEndDate
 
 	-- Get existing calendar events for smart sync
@@ -132,6 +130,8 @@ on processOmniFocusTasks(tags_considered,include_or_exclude,calendar_name)
 		set calendar_element to calendar calendar_name
 		set existing_events to every event of calendar_element
 	end tell
+
+	log("Processing tags to " & include_or_exclude & ": " & tags_considered)
 
 	tell application "OmniFocus"
 		tell default document
