@@ -246,13 +246,11 @@ on processOmniFocusTasks(tags_considered,include_or_exclude,calendar_name)
 							set needs_update to false
 							set needs_alarm_recreate to false
 
-							-- Compare core properties
+							-- Compare core properties (tolerant of iCloud/CalDAV sync artifacts)
 							if summary of found_event is not task_name then set needs_update to true
-							set evt_desc to description of found_event
-							if evt_desc is missing value then set evt_desc to ""
-							if evt_desc is not full_task_note then set needs_update to true
-							if start date of found_event is not task_start_date then set needs_update to true
-							if end date of found_event is not task_end_date then set needs_update to true
+							if not (my normalizeText(description of found_event) is my normalizeText(full_task_note)) then set needs_update to true
+							if not my datesEqualToMinute(start date of found_event, task_start_date) then set needs_update to true
+							if not my datesEqualToMinute(end date of found_event, task_end_date) then set needs_update to true
 
 							-- Compare alarm state
 							set has_alarm to (count of display alarms of found_event) > 0
@@ -347,4 +345,28 @@ on ensureCalendarRunning()
 		delay 2
 	end if
 end ensureCalendarRunning
+
+--
+-- HANDLER :: NORMALIZE TEXT --
+-- Normalizes line endings and trims trailing whitespace for reliable cross-machine comparison.
+-- iCloud/CalDAV sync may convert \r to \n, add/remove trailing whitespace, etc.
+--
+on normalizeText(txt)
+	if txt is missing value then return ""
+	-- Replace \r\n with \n, then remaining \r with \n
+	set normalized to do shell script "printf %s " & quoted form of txt & " | tr '\r' '\n' | sed 's/[[:space:]]*$//'"
+	return normalized
+end normalizeText
+
+--
+-- HANDLER :: DATES EQUAL TO MINUTE --
+-- Compares two dates ignoring seconds, since CalDAV/iCloud may strip or round seconds.
+--
+on datesEqualToMinute(d1, d2)
+	if d1 is missing value or d2 is missing value then return false
+	-- Compare year, month, day, hours, minutes (ignore seconds)
+	set d1m to d1 - (time of d1 mod 60)
+	set d2m to d2 - (time of d2 mod 60)
+	return d1m is equal to d2m
+end datesEqualToMinute
 
