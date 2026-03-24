@@ -1,37 +1,50 @@
--- ** OVERVIEW ** --
--- This code syncs macOS Calendar events from OmniFocus tasks that are due today or in the future
--- Events are matched to tasks via their OmniFocus task ID (stored in the event URL), and only changed properties are updated
--- New tasks get new events, completed/removed tasks have their events deleted, and unchanged tasks are left alone
+-- ┌─────────────────────────────────────────────────────────────────────────────┐
+-- │  OVERVIEW                                                                  │
+-- ├─────────────────────────────────────────────────────────────────────────────┤
+-- │  Syncs macOS Calendar events from OmniFocus tasks due today or later.      │
+-- │  Events are matched to tasks via their OmniFocus task ID (stored in the    │
+-- │  event URL), and only changed properties are updated. New tasks get new    │
+-- │  events, completed/removed tasks have their events deleted, and unchanged  │
+-- │  tasks are left alone.                                                     │
+-- └─────────────────────────────────────────────────────────────────────────────┘
 
+-- ┌─────────────────────────────────────────────────────────────────────────────┐
+-- │  HISTORY                                                                   │
+-- ├─────────────────────────────────────────────────────────────────────────────┤
+-- │                                                                            │
+-- │  Rosemary Orchard                                                          │
+-- │    · Modified from a script by unlocked2412                                │
+-- │    · Default to 30 min if no estimated time is set                         │
+-- │                                                                            │
+-- │  willjasen                                                                 │
+-- │    · Fixed task_start_date calculation to use task_end_date                 │
+-- │    · Only add events from today forward (decreases runtime)                │
+-- │    · Copy task notes into calendar event notes                             │
+-- │    · Shared tags no longer need to be primary tag          (2024-08-19)    │
+-- │    · Refactored script to use handlers                     (2024-08-19)    │
+-- │    · Calendar alert aligns with task's due date                            │
+-- │    · Single processing-tasks handler                       (2025-02-20)    │
+-- │    · Minimize Calendar app when script runs                (2025-05-30)    │
+-- │    · Added command-line usage comments                     (2025-05-30)    │
+-- │    · Support "planned date" attribute                      (2026-01-26)    │
+-- │    · Exclude dropped tasks from sync                       (2026-01-26)    │
+-- │    · Smart sync: match events by task ID                   (2026-03-19)    │
+-- │                                                                            │
+-- └─────────────────────────────────────────────────────────────────────────────┘
 
--- ** HISTORY ** --
--- -- Rosemary Orchard
--- -- -- Modified from a script by unlocked2412
--- -- -- If an estimated time is not set then the task defaults to 30 minutes in length
--- -- willjasen
--- -- -- changed "set task_start_date to task_start_date - (task_estimate * minutes)" to "set task_start_date to task_end_date - (task_estimate * minutes)"
--- -- -- changed so that only events from today forward are added to the calendar (decreases runtime)
--- -- -- task notes are added into calendar event notes
--- -- -- shared tags no longer need to be the primary tag in the task (2024-08-19)
--- -- -- refactored script to use handlers (2024-08-19)
--- -- -- make the calendar alert align with task's due date
--- -- -- refactor the script for only one processing tasks handler (2025-02-20)
--- -- -- add back to make the calendar app minimized when the script runs (2025-05-30)
--- -- -- added how to run the script via Usage comments (2025-05-30)
--- -- -- work with the "planned date" attribute (2026-01-26)
--- -- -- filter tasks to exclude dropped tasks (2026-01-26)
--- -- -- smart sync: match events by task ID instead of delete-all/recreate-all (2026-03-19)
+-- ┌─────────────────────────────────────────────────────────────────────────────┐
+-- │  USAGE                                                                     │
+-- ├─────────────────────────────────────────────────────────────────────────────┤
+-- │  Run from the command line:                                                │
+-- │    osascript omnifocus_tasks_to_calendar.scpt                              │
+-- │                                                                            │
+-- │  Days to look ahead/back are configured in data.json                       │
+-- │  via the daysAhead and daysBack properties.                                │
+-- └─────────────────────────────────────────────────────────────────────────────┘
 
-
--- ** USAGE ** --
--- This script can be run from the command line:
--- Example: `osascript omnifocus_tasks_to_calendar.scpt`
--- The number of days to look ahead and back are configured in data.json via daysAhead and daysBack
-
-
--- ******** --
---  SCRIPT  --
--- ******** --
+-- ┌─────────────────────────────────────────────────────────────────────────────┐
+-- │  SCRIPT                                                                    │
+-- └─────────────────────────────────────────────────────────────────────────────┘
 
 property default_event_duration : 30  --in minutes
 property expected_data_version : "v2.0.0"
