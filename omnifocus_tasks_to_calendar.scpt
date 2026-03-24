@@ -121,6 +121,8 @@ end run
 --
 on processOmniFocusTasks(tags_considered,include_or_exclude,calendar_name)
 
+	log("Processing tags to " & include_or_exclude & ": " & tags_considered)
+
 	global theStartDate, theEndDate
 
 	-- Get existing calendar events for smart sync
@@ -130,8 +132,6 @@ on processOmniFocusTasks(tags_considered,include_or_exclude,calendar_name)
 		set calendar_element to calendar calendar_name
 		set existing_events to every event of calendar_element
 	end tell
-
-	log("Processing tags to " & include_or_exclude & ": " & tags_considered)
 
 	tell application "OmniFocus"
 		tell default document
@@ -333,17 +333,36 @@ end processOmniFocusTasks
 
 --
 -- HANDLER :: ENSURE CALENDAR IS RUNNING --
--- On Apple Silicon Macs, macOS may aggressively terminate Calendar when it has no visible window.
--- This handler checks and relaunches Calendar if needed, preventing error -600.
+-- On Apple Silicon Macs, macOS aggressively terminates apps with no visible windows.
+-- Using 'run' alone is insufficient — the process starts but is killed almost immediately.
+-- This handler uses 'open -a' via shell (which fully launches with a window) and polls
+-- to verify Calendar is actually running before returning.
 --
 on ensureCalendarRunning()
-	if not (application "Calendar" is running) then
-		log("Calendar was not running (terminated by macOS), relaunching...")
-		tell application "Calendar"
-			run
-		end tell
-		delay 2
-	end if
+	-- First, try a quick Apple Event ping to see if Calendar is truly responsive
+	try
+		tell application "Calendar" to get name
+		return -- Calendar responded, it's alive
+	on error
+		log("Calendar is not responsive, launching...")
+	end try
+	-- 'open -a' is the most reliable way to fully launch an app on Apple Silicon
+	do shell script "open -a Calendar"
+	-- Poll up to 10 seconds for Calendar to become responsive
+	set maxAttempts to 10
+	repeat maxAttempts times
+		try
+			tell application "Calendar" to get name
+			log("Calendar is now running.")
+			-- Minimize the Calendar window to keep it out of the way
+			try
+				tell application "Calendar" to set miniaturized of every window to true
+			end try
+			return
+		end try
+		delay 1
+	end repeat
+	error "Failed to launch Calendar after " & maxAttempts & " seconds"
 end ensureCalendarRunning
 
 --
