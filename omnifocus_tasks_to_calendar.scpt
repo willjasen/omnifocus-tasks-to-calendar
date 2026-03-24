@@ -127,6 +127,7 @@ on processOmniFocusTasks(tags_considered,include_or_exclude,calendar_name)
 
 	-- Get existing calendar events for smart sync
 	set matched_urls to {}
+	ensureCalendarRunning()
 	tell application "Calendar"
 		set calendar_element to calendar calendar_name
 		set existing_events to every event of calendar_element
@@ -224,6 +225,7 @@ on processOmniFocusTasks(tags_considered,include_or_exclude,calendar_name)
 
 					-- SMART SYNC: Find existing calendar event by task URL
 					set found_event to missing value
+					my ensureCalendarRunning()
 					tell application "Calendar"
 						repeat with evt in existing_events
 							try
@@ -239,6 +241,7 @@ on processOmniFocusTasks(tags_considered,include_or_exclude,calendar_name)
 
 					if found_event is not missing value then
 						-- UPDATE existing event only if properties have changed
+						my ensureCalendarRunning()
 						tell application "Calendar"
 							set needs_update to false
 							set needs_alarm_recreate to false
@@ -290,6 +293,7 @@ on processOmniFocusTasks(tags_considered,include_or_exclude,calendar_name)
 					else
 						-- CREATE new calendar event
 						log("Creating event for task: " & task_name)
+						my ensureCalendarRunning()
 						tell application "Calendar"
 							tell calendar_element
 								set newEvent to make new event with properties {summary:task_name, description:full_task_note, start date:task_start_date, end date:task_end_date, url:task_url} at calendar_element
@@ -310,6 +314,7 @@ on processOmniFocusTasks(tags_considered,include_or_exclude,calendar_name)
 	end tell
 
 	-- CLEANUP: Delete orphaned events whose OmniFocus tasks are no longer active
+	ensureCalendarRunning()
 	tell application "Calendar"
 		set events_to_delete to {}
 		repeat with evt in existing_events
@@ -327,4 +332,19 @@ on processOmniFocusTasks(tags_considered,include_or_exclude,calendar_name)
 	end tell
 
 end processOmniFocusTasks
+
+--
+-- HANDLER :: ENSURE CALENDAR IS RUNNING --
+-- On Apple Silicon Macs, macOS may aggressively terminate Calendar when it has no visible window.
+-- This handler checks and relaunches Calendar if needed, preventing error -600.
+--
+on ensureCalendarRunning()
+	if not (application "Calendar" is running) then
+		log("Calendar was not running (terminated by macOS), relaunching...")
+		tell application "Calendar"
+			run
+		end tell
+		delay 2
+	end if
+end ensureCalendarRunning
 
