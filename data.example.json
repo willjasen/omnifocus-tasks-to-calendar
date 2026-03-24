@@ -1,5 +1,7 @@
 {
 	"version": "v2.0.0",
+	"daysAhead": 1,
+	"daysBack": 1,
 	"data": [
 		{
 			"tags": ["🏷️ Tag A"],

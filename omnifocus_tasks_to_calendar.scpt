@@ -24,10 +24,9 @@
 
 
 -- ** USAGE ** --
--- This script can be run from the command line with two optional parameters:
--- 1. The number of days to look ahead (default is 1)
--- 2. The number of days to look back (default is 1)
--- Example: `osascript omnifocus_tasks_to_calendar.scpt 30 7`
+-- This script can be run from the command line:
+-- Example: `osascript omnifocus_tasks_to_calendar.scpt`
+-- The number of days to look ahead and back are configured in data.json via daysAhead and daysBack
 
 
 -- ******** --
@@ -37,9 +36,10 @@
 property default_event_duration : 30  --in minutes
 property expected_data_version : "v2.0.0"
 
-on run argv
+on run
 
-	log("The script has started. Expected data.json version: " & expected_data_version)
+	log("The OmniFocus Tasks to Calendar script has started.")
+	log("Expected data.json version: " & expected_data_version)
 
 	-- Load sync configuration from external JSON file using JavaScript for Automation (JXA)
 	set scriptPath to do shell script "dirname " & quoted form of POSIX path of (path to me)
@@ -62,15 +62,11 @@ on run argv
 
 	set syncCount to (do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).data.length'") as integer
 
-	-- Set daysAhead to 1 if not passed in
-	-- Set daysBack to 1 if not passed in
-	if (count of argv) > 0 then
-		set daysAhead to item 1 of argv as integer
-		set daysBack to item 2 of argv as integer
-	else
-		set daysAhead to 1
-		set daysBack to 1
-	end if
+	-- Read daysAhead and daysBack from data.json
+	set daysAhead to (do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).daysAhead || 1'") as integer
+	set daysBack to (do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).daysBack || 1'") as integer
+
+	log("daysAhead: " & daysAhead & ", daysBack: " & daysBack)
 
 	-- for the days to pull tasks from, set the start date to today's date at the prior midnight
 	set theStartDate to current date - (days * daysBack)
