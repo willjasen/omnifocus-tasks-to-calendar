@@ -83,12 +83,12 @@ on run
 	-- Start a stopwatch
 	set stopwatchStart to current date
 
-	-- Restart the Calendar app minimized
-	-- tell application "Calendar" to quit
-	-- delay 3
-	-- tell application "Calendar"
-	--	run  -- this starts the Calendar app but doesn't load its window
-	-- end tell
+	-- Prevent macOS from automatically terminating Calendar while the script runs.
+	-- On Apple Silicon Macs, macOS aggressively kills apps with no visible windows.
+	-- This is the root cause of error -600 ("Application isn't running").
+	do shell script "defaults write com.apple.iCal NSDisableAutomaticTermination -bool true"
+	-- Launch Calendar in background (hidden, no focus steal) and wait for it to be responsive
+	ensureCalendarRunning()
 
 	-- Let the user know that the script has started
 	display notification "OmniFocus is now syncing to Calendar" with title "Syncing..."
