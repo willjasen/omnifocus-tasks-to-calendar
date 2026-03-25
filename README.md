@@ -27,7 +27,7 @@ The script uses a `data.json` file for its configuration:
 
 In regards to the span of days being worked with in the default example, the script will place tasks on calendars from today and yesterday.
 
-Refer to `data.example.json` as to the structure of the script's configuration file.
+Refer to [`data.example.json`](https://github.com/willjasen/omnifocus-tasks-to-calendar/blob/main/data.example.json) as to the structure of the script's configuration file.
 
 ---
 
