@@ -49,7 +49,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Shared tags no longer need to be primary tag
 - Refactored script to use handlers
 
-## [Initial] - willjasen
+## [Initial] - [willjasen](https://willjasen.com)
 
 ### Added
 
@@ -63,7 +63,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - Fixed task_start_date calculation to use task_end_date
 
-## [Original] - Rosemary Orchard
+## [Original] - [Rosemary Orchard](https://rosemaryorchard.com/)
 
 ### Added
 
