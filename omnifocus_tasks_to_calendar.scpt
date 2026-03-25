@@ -28,7 +28,9 @@
 -- │    · Added command-line usage comments                     (2025-05-30)    │
 -- │    · Support "planned date" attribute                      (2026-01-26)    │
 -- │    · Exclude dropped tasks from sync                       (2026-01-26)    │
--- │    · Smart sync: match events by task ID                   (2026-03-19)    │
+-- │    · Smart sync: match events by task ID                   (2026-03-??)    │
+-- │    · Move script data into a JSON file                     (2026-03-??)    │
+-- │    · Fix Calendar error on some macOS systems              (2026-03-??)    │
 -- │                                                                            │
 -- └────────────────────────────────────────────────────────────────────────────┘
 
