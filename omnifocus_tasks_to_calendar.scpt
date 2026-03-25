@@ -263,9 +263,11 @@ on processOmniFocusTasks(tags_considered,include_or_exclude,calendar_name)
 								log("Updating event for task: " & task_name)
 								set summary of found_event to task_name
 								set description of found_event to full_task_note
-								-- Set dates safely: push end date far out first to avoid
-								-- "start date must be before end date" conflict during update
-								set end date of found_event to task_end_date + (1 * days)
+								-- Set dates safely: push end date far into the future first to avoid
+								-- "start date must be before end date" conflict during update.
+								-- A 1-day buffer is insufficient if the event was manually moved
+								-- forward in Calendar; use a far-future date to guarantee safety.
+								set end date of found_event to (current date) + (366 * days)
 								set start date of found_event to task_start_date
 								set end date of found_event to task_end_date
 
