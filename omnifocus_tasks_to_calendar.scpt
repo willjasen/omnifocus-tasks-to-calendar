@@ -260,20 +260,18 @@ on processOmniFocusTasks(tags_considered,include_or_exclude,calendar_name)
 									make new event with properties {summary:task_name, description:full_task_note, start date:task_start_date, end date:task_end_date, url:task_url} at calendar_element
 								end tell
 							else if needs_update then
+								-- Delete and recreate: Calendar.app has no batch/transaction API,
+								-- so updating properties one-by-one causes visible intermediate
+								-- states (e.g. a briefly huge event span). Recreating the event
+								-- ensures the calendar only ever shows the final correct state.
 								log("Updating event for task: " & task_name)
-								set summary of found_event to task_name
-								set description of found_event to full_task_note
-								-- Set dates safely: push end date far into the future first to avoid
-								-- "start date must be before end date" conflict during update.
-								-- A 1-day buffer is insufficient if the event was manually moved
-								-- forward in Calendar; use a far-future date to guarantee safety.
-								set end date of found_event to (current date) + (366 * days)
-								set start date of found_event to task_start_date
-								set end date of found_event to task_end_date
-
+								delete found_event
+								tell calendar_element
+									set newEvent to make new event with properties {summary:task_name, description:full_task_note, start date:task_start_date, end date:task_end_date, url:task_url} at calendar_element
+								end tell
 								-- Add alarm if flagged
 								if is_flagged then
-									tell found_event
+									tell newEvent
 										make new display alarm at end with properties {trigger interval:task_estimate}
 									end tell
 								end if
