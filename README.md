@@ -14,21 +14,34 @@ Create events in macOS calendar from OmniFocus tasks
 
 ---
 
+### Configuration
+
+The script uses a `data.json` file for its configuration:
+
+- `version`: a version number of this configuration file that corresponds with a script version
+- `daysAhead`: the number of days to look ahead (the default example is 1)
+- `daysBack`: the number of days to look back (the default example is 1)
+- `data.tags`: the OmniFocus tags to work with
+- `data.mode`: the mode to work as with tags, either the word "include" or "exclude"
+- `data.calendar`: the calendar to work with
+
+In regards to the span of days being worked with in the default example, the script will place tasks on calendars from today and yesterday.
+
+Refer to `data.example.json` as to the structure of the script's configuration file.
+
+---
+
 ### Usage
 
-This script can be run from the command line with two optional parameters:
-1. The number of days to look ahead (default is 1)
-2. The number of days to look back (default is 1)
-
-This means that, by default, the script will place tasks on the calendar from today and yesterday.
-
-Example: `osascript omnifocus_tasks_to_calendar.scpt 30 7`
+This script can be run from the macOS command line: `osascript omnifocus_tasks_to_calendar.scpt`
 
 ---
 
 ### Overview
 
-For the sake of making things more complicated than it has to be, the calendars that are synced to are deleted each time the script runs, thus requiring an individual calendar(s) specifically for it. DO NOT USE A PRIMARY CALENDAR! It was a lot easier to tell a calendar to delete all of its events than compare existing events and update them when needed. In accordance with the runtime of the script, my Mac mini M4 does a week's worth of tasks to calendar events in about 30 seconds, while my 2019 Intel MacBook Pro can take 3 to 4 times longer (but I don't sync from it anymore).
+Starting with v2.0.0, calendar events are created or updated based upon their respective tasks in OmniFocus (previously, all calendar events were deleted and then recreated). Even so, DO NOT USE A PRIMARY CALENDAR! A separate, dedicated calendar(s) should be used only with this script, as this script will delete events on the calendar in some circumstances.
+
+In accordance with the runtime of the script, my Mac mini M4 does a week's worth of tasks to calendar events in about 30 seconds, while my 2019 Intel MacBook Pro can take 3 to 4 times longer.
 
 Task details that are synced to the calendar:
 

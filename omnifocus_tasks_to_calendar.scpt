@@ -1,51 +1,61 @@
--- ** OVERVIEW ** --
--- This code creates macOS Calendar events from OmniFocus tasks that are due today or in the future
--- In regards to runtime, all events on the specified calendars are deleted en masse and then recreated
+-- ┌─────────────────────────────────────────────────────────────────────────────┐
+-- │  OVERVIEW                                                                   │
+-- ├─────────────────────────────────────────────────────────────────────────────┤
+-- │  Syncs macOS Calendar events from OmniFocus tasks due today or later.       │
+-- │  Events are matched to tasks via their OmniFocus task ID (stored in the     │
+-- │  event URL), and only changed properties are updated. New tasks get new     │
+-- │  events, completed/removed tasks have their events deleted, and unchanged   │
+-- │  tasks are left alone.                                                      │
+-- └─────────────────────────────────────────────────────────────────────────────┘
 
+-- ┌─────────────────────────────────────────────────────────────────────────────┐
+-- │  USAGE                                                                      │
+-- ├─────────────────────────────────────────────────────────────────────────────┤
+-- │  Run from the command line:                                                 │
+-- │    osascript omnifocus_tasks_to_calendar.scpt                               │
+-- │                                                                             │
+-- │  Days to look ahead/back are configured in data.json                        │
+-- │  via the daysAhead and daysBack properties.                                 │
+-- └─────────────────────────────────────────────────────────────────────────────┘
 
--- ** HISTORY ** --
--- -- Rosemary Orchard
--- -- -- Modified from a script by unlocked2412
--- -- -- If an estimated time is not set then the task defaults to 30 minutes in length
--- -- willjasen
--- -- -- changed "set start_date to start_date - (task_estimate * minutes)" to "set start_date to end_date - (task_estimate * minutes)"
--- -- -- changed so that only events from today forward are added to the calendar (decreases runtime)
--- -- -- task notes are added into calendar event notes
--- -- -- shared tags no longer need to be the primary tag in the task (2024-08-19)
--- -- -- refactored script to use handlers (2024-08-19)
--- -- -- make the calendar alert align with task's due date
--- -- -- refactor the script for only one processing tasks handler (2025-02-20)
--- -- -- add back to make the calendar app minimized when the script runs (2025-05-30)
--- -- -- added how to run the script via Usage comments (2025-05-30)
-
-
--- ** USAGE ** --
--- This script can be run from the command line with two optional parameters:
--- 1. The number of days to look ahead (default is 1)
--- 2. The number of days to look back (default is 1)
--- Example: `osascript omnifocus_tasks_to_calendar.scpt 30 7`
-
-
--- ******** --
---  SCRIPT  --
--- ******** --
+-- ┌─────────────────────────────────────────────────────────────────────────────┐
+-- │  SCRIPT                                                                     │
+-- └─────────────────────────────────────────────────────────────────────────────┘
 
 property default_event_duration : 30  --in minutes
+property expected_data_version : "v2.0.0"
 
-on run argv
+on run
 
-	-- Set daysAhead to 1 if not passed in
-	-- Set daysBack to 1 if not passed in
-	if (count of argv) > 0 then
-		set daysAhead to item 1 of argv as integer
-		set daysBack to item 2 of argv as integer
-	else
-		set daysAhead to 1
-		set daysBack to 1
+	log("The OmniFocus Tasks to Calendar script has started.")
+	log("Expected data.json version: " & expected_data_version)
+
+	-- Load sync configuration from external JSON file using JavaScript for Automation (JXA)
+	set scriptPath to do shell script "dirname " & quoted form of POSIX path of (path to me)
+	set jsonPath to scriptPath & "/data.json"
+	set jsonExists to do shell script "test -f " & quoted form of jsonPath & " && echo 'true' || echo 'false'"
+	if jsonExists is "false" then
+		log("data.json not found at " & jsonPath)
+		display notification "data.json not found. Please create it from data.example.json." with title "Sync Error"
+		return
+	end if
+	set jsonContent to do shell script "cat " & quoted form of jsonPath
+
+	-- Validate data.json version matches this script's expected version
+	set dataVersion to do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'var j=JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js); j.version || \"\"'"
+	if dataVersion is not expected_data_version then
+		log("data.json version mismatch: expected " & expected_data_version & ", found " & dataVersion)
+		display notification "data.json version mismatch: expected " & expected_data_version & ", found " & dataVersion & ". Please update data.json using data.example.json." with title "Sync Error"
+		return
 	end if
 
-	-- Create global variables
-	set calendar_element to missing value  --initialize to null
+	set syncCount to (do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).data.length'") as integer
+
+	-- Read daysAhead and daysBack from data.json
+	set daysAhead to (do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).daysAhead || 1'") as integer
+	set daysBack to (do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).daysBack || 1'") as integer
+
+	log("daysAhead: " & daysAhead & ", daysBack: " & daysBack)
 
 	-- for the days to pull tasks from, set the start date to today's date at the prior midnight
 	set theStartDate to current date - (days * daysBack)
@@ -62,12 +72,12 @@ on run argv
 	-- Start a stopwatch
 	set stopwatchStart to current date
 
-	-- Restart the Calendar app minimized
-	tell application "Calendar" to quit
-	delay 3
-	tell application "Calendar"
-		run  -- this starts the Calendar app but doesn't load its window
-	end tell
+	-- Prevent macOS from automatically terminating Calendar while the script runs.
+	-- On Apple Silicon Macs, macOS aggressively kills apps with no visible windows.
+	-- This is the root cause of error -600 ("Application isn't running").
+	do shell script "defaults write com.apple.iCal NSDisableAutomaticTermination -bool true"
+	-- Launch Calendar in background (hidden, no focus steal) and wait for it to be responsive
+	ensureCalendarRunning()
 
 	-- Let the user know that the script has started
 	display notification "OmniFocus is now syncing to Calendar" with title "Syncing..."
@@ -76,24 +86,13 @@ on run argv
 	-- CALL THE HANDLERS WITH PARAMETERS --
 	-- ********************************* --
 
-	-- Delete all events from the affected calendars
-	deleteCalendarEvents("OmniFocus")
-	deleteCalendarEvents("OmniFocus - 👦🏻 Tyler")
-	deleteCalendarEvents("OmniFocus - 👩🏻 Mom")
-	deleteCalendarEvents("OmniFocus - 👨🏼 Nathaniel")
-
-	-- Sync all of the calendars
-	set tagsToSync to {"👦🏻 Tyler"}
-	processOmniFocusTasks(tagsToSync,"include","OmniFocus - 👦🏻 Tyler")
-
-	set tagsToSync to {"👩🏻 Mom","👦🏼 Isaac","🧑🏻‍🦰 Carter"}
-	processOmniFocusTasks(tagsToSync,"include","OmniFocus - 👩🏻 Mom")
-
-	set tagsToSync to {"👨🏼 Nathaniel","👦🏼 Isaac","🧑🏻‍🦰 Carter"}
-	processOmniFocusTasks(tagsToSync,"include","OmniFocus - 👨🏼 Nathaniel")
-
-	set tagsToIgnore to {"👦🏻 Tyler","👩🏻 Mom","👨🏼 Nathaniel","👦🏼 Isaac","🧑🏻‍🦰 Carter"}
-	processOmniFocusTasks(tagsToIgnore,"exclude","OmniFocus")
+	-- Loop through each sync configuration in the JSON and call the handler
+	repeat with i from 0 to syncCount - 1
+		set syncTags to paragraphs of (do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'var d=JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).data[" & i & "]; d.tags.join(\"\\n\")'")
+		set syncMode to do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).data[" & i & "].mode'"
+		set syncCalendar to do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).data[" & i & "].calendar'"
+		processOmniFocusTasks(syncTags, syncMode, syncCalendar)
+	end repeat
 
 	-- Stop the stopwatch
 	set stopwatchStop to current date
@@ -101,34 +100,28 @@ on run argv
 	set runtimeSeconds to (stopwatchStop - stopwatchStart)
 	-- Let the user know that the script has finished
 	display notification "OmniFocus is finished syncing to Calendar, took " & runtimeSeconds & " seconds" with title "Syncing Complete!"
+	log("The script has finished. Runtime: " & runtimeSeconds & " seconds.")
 
 end run
 
 --
--- HANDLER :: DELETE ALL CALENDAR EVENTS ON A GIVEN CALENDAR --
---
-on deleteCalendarEvents(calendar_name)
-
-	global calendar_element
-  
-	tell application "Calendar"
-
-		set calendar_element to calendar calendar_name
-		delete (every event of calendar_element)
-
-	end tell
-
-end deleteCalendarEvents
-
---
--- HANDLER :: PROCESS OMNIFOCUS TASKS BASED ON TAGS TO INCLUDE/EXCLUDE --
+-- HANDLER :: SMART SYNC OMNIFOCUS TASKS TO CALENDAR EVENTS --
+-- Matches existing events by task URL, updates changed events, creates new ones, removes orphaned ones
 --
 on processOmniFocusTasks(tags_considered,include_or_exclude,calendar_name)
 
 	log("Processing tags to " & include_or_exclude & ": " & tags_considered)
 
-	global theStartDate, theEndDate, calendar_element
-	
+	global theStartDate, theEndDate
+
+	-- Get existing calendar events for smart sync
+	set matched_urls to {}
+	ensureCalendarRunning()
+	tell application "Calendar"
+		set calendar_element to calendar calendar_name
+		set existing_events to every event of calendar_element
+	end tell
+
 	tell application "OmniFocus"
 		tell default document
 
@@ -165,7 +158,7 @@ on processOmniFocusTasks(tags_considered,include_or_exclude,calendar_name)
 					end repeat
 				end if
 
-				-- If the task should be synced, then add it to the calendar
+				-- If the task should be synced, then sync it to the calendar
 				if task_should_sync then
 
 					set task_due to due date of the_task
@@ -199,38 +192,189 @@ on processOmniFocusTasks(tags_considered,include_or_exclude,calendar_name)
 						set task_estimate to default_event_duration
 					end if
 
-					-- Determine the event's end_date and start_date
+					-- Determine the event's task_end_date and task_start_date
 					if task_due is not missing value then
-						set end_date to task_due
+						set task_end_date to task_due
 					else if task_planned is not missing value then
-						set end_date to task_planned
+						set task_end_date to task_planned
 					else
 						-- Skip the task if neither due nor planned date is available
 						log("Skipping task '" & task_name & "' as it has no due or planned date.")
 						exit repeat
 					end if
 
-					set start_date to end_date - (task_estimate * minutes)
+					set task_start_date to task_end_date - (task_estimate * minutes)
+					
+					-- Safety check: ensure task_start_date is before task_end_date
+					-- (handles edge cases like tasks at 11:50 PM where arithmetic might cause issues)
+					if task_start_date is greater than or equal to task_end_date then
+						log("WARNING: Date calculation error for task '" & task_name & "' | Estimate: " & task_estimate & "m | Using fallback of 1 minute duration")
+						set task_start_date to task_end_date - (1 * minutes)
+					end if
 
-					-- CREATE CALENDAR EVENT
+					-- SMART SYNC: Find existing calendar event by task URL
+					set found_event to missing value
+					my ensureCalendarRunning()
 					tell application "Calendar"
-						set calendar_element to calendar calendar_name
-						tell calendar_element							
-							set newEvent to make new event with properties {summary:task_name, description:full_task_note, start date:start_date, end date:end_date, url:task_url} at calendar_element
-						end tell
-						if is_flagged then
-							tell newEvent
-								-- Set the alert to trigger at the due date (end_date)
-								make new display alarm at end with properties {trigger interval:task_estimate}
-							end tell
-						end if
+						repeat with evt in existing_events
+							try
+								if url of evt is task_url then
+									set found_event to contents of evt
+									exit repeat
+								end if
+							end try
+						end repeat
 					end tell
 
-				end if				
+					set end of matched_urls to task_url
+
+					if found_event is not missing value then
+						-- UPDATE existing event only if properties have changed
+						my ensureCalendarRunning()
+						tell application "Calendar"
+							set needs_update to false
+							set needs_alarm_recreate to false
+
+							-- Compare core properties (tolerant of iCloud/CalDAV sync artifacts)
+							if summary of found_event is not task_name then set needs_update to true
+							if not (my normalizeText(description of found_event) is my normalizeText(full_task_note)) then set needs_update to true
+							if not my datesEqualToMinute(start date of found_event, task_start_date) then set needs_update to true
+							if not my datesEqualToMinute(end date of found_event, task_end_date) then set needs_update to true
+
+							-- Compare alarm state
+							set has_alarm to (count of display alarms of found_event) > 0
+							if is_flagged and not has_alarm then
+								set needs_update to true
+							end if
+							if (not is_flagged) and has_alarm then
+								-- Alarm needs to be removed; Calendar.app cannot reliably delete alarms,
+								-- so we delete the event and recreate it without an alarm
+								set needs_alarm_recreate to true
+							end if
+
+							if needs_alarm_recreate then
+								-- Delete and recreate: most reliable way to remove alarms
+								log("Recreating event (alarm removal) for task: " & task_name)
+								delete found_event
+								tell calendar_element
+									make new event with properties {summary:task_name, description:full_task_note, start date:task_start_date, end date:task_end_date, url:task_url} at calendar_element
+								end tell
+							else if needs_update then
+								-- Delete and recreate: Calendar.app has no batch/transaction API,
+								-- so updating properties one-by-one causes visible intermediate
+								-- states (e.g. a briefly huge event span). Recreating the event
+								-- ensures the calendar only ever shows the final correct state.
+								log("Updating event for task: " & task_name)
+								delete found_event
+								tell calendar_element
+									set newEvent to make new event with properties {summary:task_name, description:full_task_note, start date:task_start_date, end date:task_end_date, url:task_url} at calendar_element
+								end tell
+								-- Add alarm if flagged
+								if is_flagged then
+									tell newEvent
+										make new display alarm at end with properties {trigger interval:task_estimate}
+									end tell
+								end if
+							end if
+						end tell
+					else
+						-- CREATE new calendar event
+						log("Creating event for task: " & task_name)
+						my ensureCalendarRunning()
+						tell application "Calendar"
+							tell calendar_element
+								set newEvent to make new event with properties {summary:task_name, description:full_task_note, start date:task_start_date, end date:task_end_date, url:task_url} at calendar_element
+							end tell
+							if is_flagged then
+								tell newEvent
+									make new display alarm at end with properties {trigger interval:task_estimate}
+								end tell
+							end if
+						end tell
+					end if
+
+				end if
 
 			end repeat
 
 		end tell
 	end tell
 
+	-- CLEANUP: Delete orphaned events whose OmniFocus tasks are no longer active
+	ensureCalendarRunning()
+	tell application "Calendar"
+		set events_to_delete to {}
+		repeat with evt in existing_events
+			try
+				set evt_url to url of evt
+				if evt_url is not missing value and evt_url starts with "omnifocus:///task/" and evt_url is not in matched_urls then
+					set end of events_to_delete to contents of evt
+				end if
+			end try
+		end repeat
+		repeat with evt in events_to_delete
+			log("Deleting orphaned event: " & summary of evt)
+			delete evt
+		end repeat
+	end tell
+
 end processOmniFocusTasks
+
+--
+-- HANDLER :: ENSURE CALENDAR IS RUNNING --
+-- On Apple Silicon Macs, macOS aggressively terminates apps with no visible windows.
+-- Using 'run' alone is insufficient — the process starts but is killed almost immediately.
+-- This handler uses 'open -a' via shell (which fully launches with a window) and polls
+-- to verify Calendar is actually running before returning.
+--
+on ensureCalendarRunning()
+	-- First, try a quick Apple Event ping to see if Calendar is truly responsive
+	try
+		tell application "Calendar" to get name
+		return -- Calendar responded, it's alive
+	on error
+		log("Calendar is not responsive, launching...")
+	end try
+	-- 'open -a' is the most reliable way to fully launch an app on Apple Silicon
+	do shell script "open -a Calendar"
+	-- Poll up to 10 seconds for Calendar to become responsive
+	set maxAttempts to 10
+	repeat maxAttempts times
+		try
+			tell application "Calendar" to get name
+			log("Calendar is now running.")
+			-- Minimize the Calendar window to keep it out of the way
+			try
+				tell application "Calendar" to set miniaturized of every window to true
+			end try
+			return
+		end try
+		delay 1
+	end repeat
+	error "Failed to launch Calendar after " & maxAttempts & " seconds"
+end ensureCalendarRunning
+
+--
+-- HANDLER :: NORMALIZE TEXT --
+-- Normalizes line endings and trims trailing whitespace for reliable cross-machine comparison.
+-- iCloud/CalDAV sync may convert \r to \n, add/remove trailing whitespace, etc.
+--
+on normalizeText(txt)
+	if txt is missing value then return ""
+	-- Replace \r\n with \n, then remaining \r with \n
+	set normalized to do shell script "printf %s " & quoted form of txt & " | tr '\r' '\n' | sed 's/[[:space:]]*$//'"
+	return normalized
+end normalizeText
+
+--
+-- HANDLER :: DATES EQUAL TO MINUTE --
+-- Compares two dates ignoring seconds, since CalDAV/iCloud may strip or round seconds.
+--
+on datesEqualToMinute(d1, d2)
+	if d1 is missing value or d2 is missing value then return false
+	-- Compare year, month, day, hours, minutes (ignore seconds)
+	set d1m to d1 - (time of d1 mod 60)
+	set d2m to d2 - (time of d2 mod 60)
+	return d1m is equal to d2m
+end datesEqualToMinute
+

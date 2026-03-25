@@ -8,8 +8,8 @@
 	<string>omnifocus_tasks_to_calendar</string>
 	<key>ProgramArguments</key>
 	<array>
-	<string>osascript</string>
-	<string>/Users/willjasen/.scripts/omnifocus-tasks-to-calendar/omnifocus_tasks_to_calendar.scpt</string>
+		<string>osascript</string>
+		<string>/Users/willjasen/.scripts/omnifocus-tasks-to-calendar/omnifocus_tasks_to_calendar.scpt</string>
 	</array>
 	<key>StandardErrorPath</key>
 	<string>/Users/willjasen/Library/Caches/TemporaryItems/local.wiljasen.omnifocus_tasks_to_calendar.err</string>
