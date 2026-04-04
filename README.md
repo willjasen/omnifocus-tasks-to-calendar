@@ -16,7 +16,7 @@ Create events in macOS calendar from OmniFocus tasks
 
 ### Configuration
 
-The script uses a `data.json` file for its configuration:
+The script uses a `config.json` file for its configuration:
 
 - `version`: a version number of this configuration file that corresponds with a script version
 - `daysAhead`: the number of days to look ahead (the default example is 1)

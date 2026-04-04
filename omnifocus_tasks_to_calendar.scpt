@@ -14,7 +14,7 @@
 -- │  Run from the command line:                                                 │
 -- │    osascript omnifocus_tasks_to_calendar.scpt                               │
 -- │                                                                             │
--- │  Days to look ahead/back are configured in data.json                        │
+-- │  Days to look ahead/back are configured in config.json                      │
 -- │  via the daysAhead and daysBack properties.                                 │
 -- └─────────────────────────────────────────────────────────────────────────────┘
 
@@ -28,30 +28,38 @@ property expected_data_version : "v2.0.0"
 on run
 
 	log("The OmniFocus Tasks to Calendar script has started.")
-	log("Expected data.json version: " & expected_data_version)
+	log("Expected config.json version: " & expected_data_version)
 
 	-- Load sync configuration from external JSON file using JavaScript for Automation (JXA)
+	-- Prefer config.json; fall back to data.json for backwards compatibility
 	set scriptPath to do shell script "dirname " & quoted form of POSIX path of (path to me)
-	set jsonPath to scriptPath & "/data.json"
+	set jsonPath to scriptPath & "/config.json"
 	set jsonExists to do shell script "test -f " & quoted form of jsonPath & " && echo 'true' || echo 'false'"
 	if jsonExists is "false" then
-		log("data.json not found at " & jsonPath)
-		display notification "data.json not found. Please create it from data.example.json." with title "Sync Error"
+		set jsonPath to scriptPath & "/data.json"
+		set jsonExists to do shell script "test -f " & quoted form of jsonPath & " && echo 'true' || echo 'false'"
+		if jsonExists is "true" then
+			log("config.json not found, falling back to data.json")
+		end if
+	end if
+	if jsonExists is "false" then
+		log("config.json not found at " & jsonPath)
+		display notification "config.json not found. Please create it from config.example.json." with title "Sync Error"
 		return
 	end if
 	set jsonContent to do shell script "cat " & quoted form of jsonPath
 
-	-- Validate data.json version matches this script's expected version
+	-- Validate config version matches this script's expected version
 	set dataVersion to do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'var j=JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js); j.version || \"\"'"
 	if dataVersion is not expected_data_version then
-		log("data.json version mismatch: expected " & expected_data_version & ", found " & dataVersion)
-		display notification "data.json version mismatch: expected " & expected_data_version & ", found " & dataVersion & ". Please update data.json using data.example.json." with title "Sync Error"
+		log("config version mismatch: expected " & expected_data_version & ", found " & dataVersion)
+		display notification "config version mismatch: expected " & expected_data_version & ", found " & dataVersion & ". Please update config.json using data.example.json." with title "Sync Error"
 		return
 	end if
 
 	set syncCount to (do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).data.length'") as integer
 
-	-- Read daysAhead and daysBack from data.json
+	-- Read daysAhead and daysBack from config.json
 	set daysAhead to (do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).daysAhead || 1'") as integer
 	set daysBack to (do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).daysBack || 1'") as integer
 
