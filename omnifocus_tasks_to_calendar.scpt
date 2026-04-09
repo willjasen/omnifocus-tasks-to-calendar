@@ -28,7 +28,6 @@ property minimum_config_version : "v2.0.0"
 on run
 
 	log("The OmniFocus Tasks to Calendar script has started.")
-	log("Minimum config.json version: " & minimum_config_version)
 
 	-- Load sync configuration from external JSON file using JavaScript for Automation (JXA)
 	-- Prefer config.json; fall back to data.json for backwards compatibility
@@ -57,6 +56,7 @@ on run
 		display notification "config version too old: minimum " & minimum_config_version & ", found " & dataVersion & ". Please update config.json." with title "Sync Error"
 		return
 	end if
+	log("config.json version: " & dataVersion & ", minimum required: " & minimum_config_version)
 
 	set syncCount to (do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).data.length'") as integer
 
