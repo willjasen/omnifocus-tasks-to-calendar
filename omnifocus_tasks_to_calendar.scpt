@@ -126,7 +126,7 @@ on run
 	if runtimeLogging then
 		set logPath to scriptPath & "/runtime_log.csv"
 		set logExists to do shell script "test -f " & quoted form of logPath & " && echo 'true' || echo 'false'"
-		set runTimestamp to do shell script "date '+%Y-%m-%dT%H:%M:%S'"
+		set runTimestamp to do shell script "date '+%Y-%m-%dT%H:%M:%S%z'"
 		set machineName to do shell script "scutil --get ComputerName"
 		if logExists is "false" then
 			do shell script "echo 'timestamp,machine,config_index,calendar,mode,days_ahead,days_back,config_runtime_seconds' > " & quoted form of logPath
