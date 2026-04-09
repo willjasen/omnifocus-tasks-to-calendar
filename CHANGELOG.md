@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2026-04-09]
+
+### Added
+
+- option to log runtime performance to CSV
+
+### Changed
+
+- the script now specifies a minimum config version
+- config examples for each version are located under the `examples` directory
+- allow for daysAhead and daysBack to be specified per config index
+
 ## [2026-03-25]
 
 ### Added
