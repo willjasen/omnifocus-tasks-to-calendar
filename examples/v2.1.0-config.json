@@ -1,5 +1,5 @@
 {
-	"version": "v2.0.2",
+	"version": "v2.1.0",
 	"daysAhead": 1,
 	"daysBack": 1,
 	"runtime_logging": true,
@@ -7,12 +7,16 @@
 		{
 			"tags": ["🏷️ Tag A"],
 			"mode": "include",
-			"calendar": "OmniFocus - 🏷️ Tag A"
+			"calendar": "OmniFocus - 🏷️ Tag A",
+			"daysAhead": 5,
+			"daysBack": 5
 		},
 		{
 			"tags": ["🏷️ Tag B", "🏷️ Tag C"],
 			"mode": "include",
-			"calendar": "OmniFocus - 🏷️ Tag B"
+			"calendar": "OmniFocus - 🏷️ Tag B",
+			"daysAhead": 15,
+			"daysBack": 10
 		},
 		{
 			"tags": ["🏷️ Tag A", "🏷️ Tag B", "🏷️ Tag C"],
