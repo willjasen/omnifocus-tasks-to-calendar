@@ -67,18 +67,6 @@ on run
 
 	log("daysAhead: " & daysAhead & ", daysBack: " & daysBack)
 
-	-- for the days to pull tasks from, set the start date to today's date at the prior midnight
-	set theStartDate to current date - (days * daysBack)
-	set hours of theStartDate to 0
-	set minutes of theStartDate to 0
-	set seconds of theStartDate to 0
-
-	-- for the days to pull tasks from, set the end date to today's date plus how many days to look forward
-	set theEndDate to current date + (days * (daysAhead - 1))
-	set hours of theEndDate to 23
-	set minutes of theEndDate to 59
-	set seconds of theEndDate to 59
-
 	-- Start a stopwatch
 	set stopwatchStart to current date
 
@@ -100,10 +88,23 @@ on run
 	set syncCalendars to {}
 	set syncModes to {}
 	set syncRuntimes to {}
+	set syncDaysAheadList to {}
+	set syncDaysBackList to {}
 	repeat with i from 0 to syncCount - 1
 		set syncTags to paragraphs of (do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'var d=JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).data[" & i & "]; d.tags.join(\"\\n\")'")
 		set syncMode to do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).data[" & i & "].mode'"
 		set syncCalendar to do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).data[" & i & "].calendar'"
+		set configDaysAhead to (do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'var d=JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).data[" & i & "]; d.daysAhead != null ? d.daysAhead : " & daysAhead & "'") as integer
+		set configDaysBack to (do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'var d=JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).data[" & i & "]; d.daysBack != null ? d.daysBack : " & daysBack & "'") as integer
+		-- Compute date range for this config (per-config values override global)
+		set theStartDate to current date - (days * configDaysBack)
+		set hours of theStartDate to 0
+		set minutes of theStartDate to 0
+		set seconds of theStartDate to 0
+		set theEndDate to current date + (days * (configDaysAhead - 1))
+		set hours of theEndDate to 23
+		set minutes of theEndDate to 59
+		set seconds of theEndDate to 59
 		set configStart to current date
 		processOmniFocusTasks(syncTags, syncMode, syncCalendar)
 		set configRuntime to (current date) - configStart
@@ -111,6 +112,8 @@ on run
 		set end of syncCalendars to syncCalendar
 		set end of syncModes to syncMode
 		set end of syncRuntimes to configRuntime
+		set end of syncDaysAheadList to configDaysAhead
+		set end of syncDaysBackList to configDaysBack
 	end repeat
 
 	-- Stop the stopwatch
@@ -132,7 +135,9 @@ on run
 			set configCalendar to item i of syncCalendars
 			set configMode to item i of syncModes
 			set configRuntime to item i of syncRuntimes
-			do shell script "echo " & quoted form of (runTimestamp & "," & machineName & "," & (i - 1) & "," & configCalendar & "," & configMode & "," & daysAhead & "," & daysBack & "," & configRuntime) & " >> " & quoted form of logPath
+			set configDaysAheadLogged to item i of syncDaysAheadList
+			set configDaysBackLogged to item i of syncDaysBackList
+			do shell script "echo " & quoted form of (runTimestamp & "," & machineName & "," & (i - 1) & "," & configCalendar & "," & configMode & "," & configDaysAheadLogged & "," & configDaysBackLogged & "," & configRuntime) & " >> " & quoted form of logPath
 		end repeat
 		log("Runtime logged to " & logPath)
 	end if
