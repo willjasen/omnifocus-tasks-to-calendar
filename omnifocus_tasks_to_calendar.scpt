@@ -23,12 +23,12 @@
 -- └─────────────────────────────────────────────────────────────────────────────┘
 
 property default_event_duration : 30  --in minutes
-property expected_data_version : "v2.0.0"
+property minimum_config_version : "v2.0.0"
 
 on run
 
 	log("The OmniFocus Tasks to Calendar script has started.")
-	log("Expected config.json version: " & expected_data_version)
+	log("Minimum config.json version: " & minimum_config_version)
 
 	-- Load sync configuration from external JSON file using JavaScript for Automation (JXA)
 	-- Prefer config.json; fall back to data.json for backwards compatibility
@@ -49,19 +49,21 @@ on run
 	end if
 	set jsonContent to do shell script "cat " & quoted form of jsonPath
 
-	-- Validate config version matches this script's expected version
+	-- Validate config version meets this script's minimum required version
 	set dataVersion to do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'var j=JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js); j.version || \"\"'"
-	if dataVersion is not expected_data_version then
-		log("config version mismatch: expected " & expected_data_version & ", found " & dataVersion)
-		display notification "config version mismatch: expected " & expected_data_version & ", found " & dataVersion & ". Please update config.json using data.example.json." with title "Sync Error"
+	set lowerVersion to do shell script "printf '%s\\n%s\\n' " & quoted form of minimum_config_version & " " & quoted form of dataVersion & " | sort -V | head -1"
+	if lowerVersion is not minimum_config_version then
+		log("config version too old: minimum " & minimum_config_version & ", found " & dataVersion)
+		display notification "config version too old: minimum " & minimum_config_version & ", found " & dataVersion & ". Please update config.json." with title "Sync Error"
 		return
 	end if
 
 	set syncCount to (do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).data.length'") as integer
 
-	-- Read daysAhead and daysBack from config.json
+	-- Read daysAhead, daysBack, and runtime_logging from config.json
 	set daysAhead to (do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).daysAhead || 1'") as integer
 	set daysBack to (do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).daysBack || 1'") as integer
+	set runtimeLogging to (do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).runtime_logging === true ? \"true\" : \"false\";'") is "true"
 
 	log("daysAhead: " & daysAhead & ", daysBack: " & daysBack)
 
@@ -95,17 +97,46 @@ on run
 	-- ********************************* --
 
 	-- Loop through each sync configuration in the JSON and call the handler
+	set syncCalendars to {}
+	set syncModes to {}
+	set syncRuntimes to {}
 	repeat with i from 0 to syncCount - 1
 		set syncTags to paragraphs of (do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'var d=JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).data[" & i & "]; d.tags.join(\"\\n\")'")
 		set syncMode to do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).data[" & i & "].mode'"
 		set syncCalendar to do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).data[" & i & "].calendar'"
+		set configStart to current date
 		processOmniFocusTasks(syncTags, syncMode, syncCalendar)
+		set configRuntime to (current date) - configStart
+		log("Config " & i & " (" & syncCalendar & ", " & syncMode & ") took " & configRuntime & " seconds.")
+		set end of syncCalendars to syncCalendar
+		set end of syncModes to syncMode
+		set end of syncRuntimes to configRuntime
 	end repeat
 
 	-- Stop the stopwatch
 	set stopwatchStop to current date
 	-- Subtract the two dates
 	set runtimeSeconds to (stopwatchStop - stopwatchStart)
+
+	-- Log runtime to CSV file if runtime_logging is enabled
+	if runtimeLogging then
+		set logPath to scriptPath & "/runtime_log.csv"
+		set logExists to do shell script "test -f " & quoted form of logPath & " && echo 'true' || echo 'false'"
+		set runTimestamp to do shell script "date '+%Y-%m-%dT%H:%M:%S'"
+		set machineName to do shell script "scutil --get ComputerName"
+		if logExists is "false" then
+			do shell script "echo 'timestamp,machine,config_index,calendar,mode,days_ahead,days_back,config_runtime_seconds' > " & quoted form of logPath
+		end if
+		-- Write per-config rows
+		repeat with i from 1 to syncCount
+			set configCalendar to item i of syncCalendars
+			set configMode to item i of syncModes
+			set configRuntime to item i of syncRuntimes
+			do shell script "echo " & quoted form of (runTimestamp & "," & machineName & "," & (i - 1) & "," & configCalendar & "," & configMode & "," & daysAhead & "," & daysBack & "," & configRuntime) & " >> " & quoted form of logPath
+		end repeat
+		log("Runtime logged to " & logPath)
+	end if
+
 	-- Let the user know that the script has finished
 	display notification "OmniFocus is finished syncing to Calendar, took " & runtimeSeconds & " seconds" with title "Syncing Complete!"
 	log("The script has finished. Runtime: " & runtimeSeconds & " seconds.")
