@@ -65,7 +65,7 @@ on run
 	set daysBack to (do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).daysBack || 1'") as integer
 	set runtimeLogging to (do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).runtime_logging === true ? \"true\" : \"false\";'") is "true"
 
-	log("daysAhead: " & daysAhead & ", daysBack: " & daysBack)
+	log("Global daysAhead: " & daysAhead & ", daysBack: " & daysBack)
 
 	-- Start a stopwatch
 	set stopwatchStart to current date
@@ -97,6 +97,7 @@ on run
 		set configDaysAhead to (do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'var d=JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).data[" & i & "]; d.daysAhead != null ? d.daysAhead : " & daysAhead & "'") as integer
 		set configDaysBack to (do shell script "echo " & quoted form of jsonContent & " | osascript -l JavaScript -e 'var d=JSON.parse($.NSString.alloc.initWithDataEncoding($.NSFileHandle.fileHandleWithStandardInput.readDataToEndOfFile, $.NSUTF8StringEncoding).js).data[" & i & "]; d.daysBack != null ? d.daysBack : " & daysBack & "'") as integer
 		-- Compute date range for this config (per-config values override global)
+		log("Config " & i & " (" & syncCalendar & ") effective daysAhead: " & configDaysAhead & ", daysBack: " & configDaysBack)
 		set theStartDate to current date - (days * configDaysBack)
 		set hours of theStartDate to 0
 		set minutes of theStartDate to 0
