@@ -173,9 +173,9 @@ on processOmniFocusTasks(tags_considered,include_or_exclude,calendar_name)
 			set task_elements to flattened tasks whose ¬
 				(completed is false) and ¬
 				(dropped is false) and ¬
-				((due date ≠ missing value) or (planned date ≠ missing value)) and ¬
-				((due date is greater than or equal to theStartDate) or (planned date is greater than or equal to theStartDate)) and ¬
-				((due date is less than or equal to theEndDate) or (planned date is less than or equal to theEndDate))
+				((effective due date ≠ missing value) or (effective planned date ≠ missing value)) and ¬
+				((effective due date is greater than or equal to theStartDate) or (effective planned date is greater than or equal to theStartDate)) and ¬
+				((effective due date is less than or equal to theEndDate) or (effective planned date is less than or equal to theEndDate))
 
 			repeat with item_ref in task_elements
 
@@ -206,8 +206,8 @@ on processOmniFocusTasks(tags_considered,include_or_exclude,calendar_name)
 				-- If the task should be synced, then sync it to the calendar
 				if task_should_sync then
 
-					set task_due to due date of the_task
-					set task_planned to planned date of the_task
+					set task_due to effective due date of the_task
+					set task_planned to effective planned date of the_task
 					set task_name to name of the_task
 					set task_note to note of the_task
 					-- Check if the task has a project assigned
